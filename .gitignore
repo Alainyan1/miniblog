@@ -10,3 +10,5 @@ go.work.sum
 # 日志文件
 *.log
 
+# 临时文件
+/_output
