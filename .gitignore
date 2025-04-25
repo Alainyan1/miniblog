@@ -1,0 +1,12 @@
+# backup
+*.bak
+
+*~
+
+# go 工作区文件
+go.work
+go.work.sum
+
+# 日志文件
+*.log
+
