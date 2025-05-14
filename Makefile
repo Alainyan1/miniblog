@@ -4,7 +4,9 @@
 # 当前Makefile文件的路径总是为列表的最后一个元素
 COMMON_SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 # 项目根目录, 将其转为绝对路径
-PROJECT_ROOT_DIR := $(abspath $(shell cd $(COMMON_SELF_DIR))/ && pwd -P)
+# PROJECT_ROOT_DIR := $(abspath $(shell cd $(COMMON_SELF_DIR))/ && pwd -P)
+# 直接指定项目根目录
+PROJECT_ROOT_DIR := /Users/paulfaltings/Desktop/goproject/miniblog
 # 构建产物, 临时文件存放目录
 OUTPUT_DIR := $(PROJECT_ROOT_DIR)/_output
 
@@ -30,12 +32,14 @@ format:
 # 添加版权信息
 .PHONY: add-copyright
 add-copyright:
-	@addlicense -v -f $(PROJECT_ROOT_DIR)/scripts/biolerplate.txt $(PROJECT_ROOT_DIR) --skip-dir=third_party,vendor,$(OUTPUT_DIR)
+	@addlicense -v -f $(PROJECT_ROOT_DIR)/scripts/boilerplate.txt $(PROJECT_ROOT_DIR) --skip-dir=third_party,vendor,$(OUTPUT_DIR)
 
 # 自动添加/移除go依赖包
 .PHONY: tidy
+tidy:
 	@go mod tidy
 
 # 清理构建产物, 幂等删除, 在临时目录不存在时Makefile执行仍然成功
 .PHONY: clean
+clean:
 	@-rm -vrf $(OUTPUT_DIR)
