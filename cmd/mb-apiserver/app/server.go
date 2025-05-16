@@ -1,13 +1,26 @@
+// Copyright 2024 alainyan <alainyan@yahoo.com>. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file. The original repo for
+// this file is https://github.com/Alainyan1/miniblog.
+
 package app
 
 import (
+	"encoding/json"
 	"fmt"
+	"miniblog/cmd/mb-apiserver/app/options"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+var configFile string
 
 // 创建一个 *cobra.Command 对象, 用于启动应用程序
 func NewMiniBlogCommand() *cobra.Command {
+	// 默认命令行选项
+	opts := options.NewServerOptions()
+
 	cmd := &cobra.Command{
 		// 指定命令名字, 该名字会出现在帮助信息中
 		Use: "mb-apiserver",
@@ -43,12 +56,40 @@ The project features include:
 		SilenceUsage: true,
 		// 指定调用cmd.Execute()时, 执行的Run函数
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("Hello MiniBlog!")
+			// 将viper中的配置解析道选项opts变量中
+			if err := viper.Unmarshal(opts); err != nil {
+				return err
+			}
+			// 对变量进行校验
+			if err := opts.Validate(); err != nil {
+				return err
+			}
+
+			// fmt.Println("Hello MiniBlog!")
+			fmt.Printf("ServerMode from ServerOptions: %s\n", opts.JWTKey)
+			fmt.Printf("ServerMode from Viper: %s\n\n", viper.GetString("jwt-key"))
+
+			jsonData, _ := json.MarshalIndent(opts, "", " ")
+			fmt.Println(jsonData)
+
 			return nil
 		},
 		// 设置命令运行时的参数检查, 不需要指定命令行参数。例如: ./miniblog param1 param2
 		Args: cobra.NoArgs,
 	}
 
+	// 通过cobra.OnInitialize注册一个回调函数, 该函数在每次运行任意命令时调用
+	// 初始化配置函数, 在每个命令运行时调用
+	// 确保在程序运行时，将--config命令行选项指定的配置文件内容加载到viper中
+	cobra.OnInitialize(OnInitialize)
+
+	// cobra 支持持久性标志(PersistentFlag)，该标志可用于它所分配的命令以及该命令下的每个子命令
+	// 推荐使用配置文件来配置应用，便于管理配置项
+	// 通过PersistentFlags().StringVarP调用, 给应用添加了--config/-c命令行选项, 用来指定配置文件路径
+	// 将配置文件保存到configFile变量中, configFile默认值由filePath函数生成
+	cmd.PersistentFlags().StringVarP(&configFile, "config", "c", filePath(), "Path to the miniblog configuration file.")
+
+	// 将 ServerOptions 中的选项绑定到cmd.PersistentFlags标志集中
+	opts.AddFlags(cmd.PersistentFlags())
 	return cmd
 }

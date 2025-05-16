@@ -32,7 +32,7 @@ format:
 # 添加版权信息
 .PHONY: add-copyright
 add-copyright:
-	@addlicense -v -f $(PROJECT_ROOT_DIR)/scripts/boilerplate.txt $(PROJECT_ROOT_DIR) --skip-dir=third_party,vendor,$(OUTPUT_DIR)
+	@addlicense -v -f $(PROJECT_ROOT_DIR)/scripts/boilerplate.txt $(PROJECT_ROOT_DIR) --skip-dirs=third_party,vendor,$(OUTPUT_DIR)
 
 # 自动添加/移除go依赖包
 .PHONY: tidy

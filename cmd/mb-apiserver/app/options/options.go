@@ -1,0 +1,74 @@
+// Copyright 2024 alainyan <alainyan@yahoo.com>. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file. The original repo for
+// this file is https://github.com/Alainyan1/miniblog.
+
+package options
+
+import (
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/spf13/pflag"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/sets"
+)
+
+// 支持服务器模式集合
+var availableServerModes = sets.New(
+	"grpc",
+	"grpc-gateway",
+	"gin",
+)
+
+// 服务器配置选项
+type ServerOptions struct {
+	// ServerMode定义服务器模式: gRPC, Gin HTTP, HTTP Reverse Proxy
+	ServerMode string `json:"server-mode" mapstructuree:"server-mode"`
+
+	// JWTKey定义JWT密钥
+	JWTKey string `json:"jwt-key" mapstructure:"jwt-key"`
+
+	//Expiration定义JWT token过期时间
+	Expiration time.Duration `json:"expiration" mapstructure:"expiration"`
+}
+
+// 创建带有默认值的ServerOptions实例
+func NewServerOptions() *ServerOptions {
+	return &ServerOptions{
+		ServerMode: "grpc-gateway",
+		JWTKey:     "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
+		Expiration: 2 * time.Hour,
+	}
+}
+
+// AddFlags 将 ServerOptions 的选项绑定到命令行标志.
+// 通过使用 pflag 包，可以实现从命令行中解析这些选项的功能.
+// 将命令行选项--server-mode, --jwt-key, --expiration绑定到ServerOptions中的相关字段
+// 从而支持通过命令行选项来给ServerOption结构体中的字段赋值
+func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
+	fs.StringVar(&o.ServerMode, "server-mode", o.ServerMode, fmt.Sprintf("Server mode, available options: %v", availableServerModes.UnsortedList()))
+	fs.StringVar(&o.JWTKey, "jwt-key", o.JWTKey, "JWT signing key. Must be at least 6 characters long.")
+	// 绑定 JWT Token 的过期时间选项到命令行标志。
+	// 参数名称为 `--expiration`, 默认值为 o.Expiration
+	fs.DurationVar(&o.Expiration, "expiration", o.Expiration, "The expiration duration of JWT tokens.")
+}
+
+// 检验ServerOptions中的选项是否合法
+func (o *ServerOptions) Validate() error {
+	errs := []error{}
+
+	//校验ServerMode是否有效
+	if !availableServerModes.Has(o.ServerMode) {
+		errs = append(errs, fmt.Errorf("invalid server mode: must be one of %v", availableServerModes.UnsortedList()))
+	}
+
+	//校验JWTKey长度
+	if len(o.JWTKey) < 6 {
+		errs = append(errs, errors.New("JWTKey must be at least 6 characters long"))
+	}
+
+	//合并错误并返回
+	return utilerrors.NewAggregate(errs)
+}
