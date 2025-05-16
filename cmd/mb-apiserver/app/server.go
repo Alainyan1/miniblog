@@ -6,8 +6,6 @@
 package app
 
 import (
-	"encoding/json"
-	"fmt"
 	"miniblog/cmd/mb-apiserver/app/options"
 
 	"github.com/spf13/cobra"
@@ -56,23 +54,7 @@ The project features include:
 		SilenceUsage: true,
 		// 指定调用cmd.Execute()时, 执行的Run函数
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// 将viper中的配置解析道选项opts变量中
-			if err := viper.Unmarshal(opts); err != nil {
-				return err
-			}
-			// 对变量进行校验
-			if err := opts.Validate(); err != nil {
-				return err
-			}
-
-			// fmt.Println("Hello MiniBlog!")
-			fmt.Printf("ServerMode from ServerOptions: %s\n", opts.JWTKey)
-			fmt.Printf("ServerMode from Viper: %s\n\n", viper.GetString("jwt-key"))
-
-			jsonData, _ := json.MarshalIndent(opts, "", " ")
-			fmt.Println(jsonData)
-
-			return nil
+			return run(opts)
 		},
 		// 设置命令运行时的参数检查, 不需要指定命令行参数。例如: ./miniblog param1 param2
 		Args: cobra.NoArgs,
@@ -92,4 +74,33 @@ The project features include:
 	// 将 ServerOptions 中的选项绑定到cmd.PersistentFlags标志集中
 	opts.AddFlags(cmd.PersistentFlags())
 	return cmd
+}
+
+// 主运行逻辑, 复制初始化日志, 解析配置, 校验选项并启动服务器
+func run(opts *options.ServerOptions) error {
+	// 将 viper 中的配置解析到 opts.
+	if err := viper.Unmarshal(opts); err != nil {
+		return err
+	}
+
+	// 校验命令行选项
+	if err := opts.Validate(); err != nil {
+		return err
+	}
+
+	// 获取应用配置
+	// 将命令行选项和应用应用配置分开, 更加灵活处理2种不同类型的配置
+	cfg, err := opts.Config()
+	if err != nil {
+		return err
+	}
+
+	// 创建联合服务实例
+	server, err := cfg.NewUnionServer()
+	if err != nil {
+		return err
+	}
+
+	// 启动服务器
+	return server.Run()
 }

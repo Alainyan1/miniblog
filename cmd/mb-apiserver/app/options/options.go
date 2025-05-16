@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/pflag"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
+
+	"miniblog/internal/apiserver" //控制面依赖数据面
 )
 
 // 支持服务器模式集合
@@ -71,4 +73,13 @@ func (o *ServerOptions) Validate() error {
 
 	//合并错误并返回
 	return utilerrors.NewAggregate(errs)
+}
+
+// Config方法基于ServerOptions创建新的apiserver.Config
+func (o *ServerOptions) Config() (*apiserver.Config, error) {
+	return &apiserver.Config{
+		ServerMode: o.ServerMode,
+		JWTKey:     o.JWTKey,
+		Expiration: o.Expiration,
+	}, nil
 }
