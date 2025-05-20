@@ -14,7 +14,7 @@ OUTPUT_DIR := $(PROJECT_ROOT_DIR)/_output
 # ============================
 # 定义版本相关变量
 # 指定应用使用的version包, 会通过 `-ldflags -X` 向该包中指定的变量注入值 
-VERSION_PACKAGE := github.com/Alainyan1/miniblog/pkg/version
+VERSION_PACKAGE=miniblog/pkg/version
 # 定义VERSION语义化版本号
 ifeq ($(origin VERSION), undefined)
   # 如果VERSION未定义, 则使用git命令获取版本号
@@ -36,11 +36,11 @@ GIT_COMMIT := $(shell git rev-parse HEAD)
 
 # 使用 date -u 获取构建时间, -u选项表示使用UTC时间
 GO_LDFLAGS += \
-	-X $(VERSION_PACKAGE).gitVersion=$(VERSION) \
-	-X $(VERSION_PACKAGE).gitCommit=$(GIT_COMMIT) \
-	-X $(VERSION_PACKAGE).gitTreeState=$(GIT_TREE_STATE)
-	-X $(VERSION_PACKAGE).buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
-
+    -X $(VERSION_PACKAGE).gitVersion=$(VERSION) \
+    -X $(VERSION_PACKAGE).gitCommit=$(GIT_COMMIT) \
+    -X $(VERSION_PACKAGE).gitTreeState=$(GIT_TREE_STATE) \
+    -X $(VERSION_PACKAGE).buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+# ============================
 # 默认目标为all
 .DEFAULT_GOAL := all
 
@@ -49,6 +49,8 @@ GO_LDFLAGS += \
 .PHONY: all
 all: tidy format build add-copyright
 
+# =============================
+# 其他伪目标
 # 编译源码, 依赖tidy目标自动添加/移除依赖包
 # 编译mb-apiserver, 生成的二进制文件存放在$(OUTPUT_DIR)目录下
 .PHONY: build

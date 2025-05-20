@@ -61,8 +61,8 @@ func (info Info) Text() string {
 	table.AddRow("gitVersion:", info.GitVersion)
 	table.AddRow("gitCommit:", info.GitCommit)
 	table.AddRow("gitTreeState:", info.GitTreeState)
-	table.AddRow("goVersion:", info.BuildDate)
-	table.AddRow("gitCommit:", info.GoVersion)
+	table.AddRow("buildDate:", info.BuildDate)
+	table.AddRow("goVersion:", info.GoVersion)
 	table.AddRow("compiler:", info.Compiler)
 	table.AddRow("platform:", info.Platform)
 
