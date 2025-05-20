@@ -7,6 +7,7 @@ package app
 
 import (
 	"miniblog/cmd/mb-apiserver/app/options"
+	"miniblog/pkg/version"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -73,11 +74,17 @@ The project features include:
 
 	// 将 ServerOptions 中的选项绑定到cmd.PersistentFlags标志集中
 	opts.AddFlags(cmd.PersistentFlags())
+
+	// 添加 --version标志
+	version.AddFlags(cmd.PersistentFlags())
 	return cmd
 }
 
 // 主运行逻辑, 复制初始化日志, 解析配置, 校验选项并启动服务器
 func run(opts *options.ServerOptions) error {
+	// 如果传入 --version, 则打印版本信息并推出
+	version.PrintAndExitIfRequested()
+
 	// 将 viper 中的配置解析到 opts.
 	if err := viper.Unmarshal(opts); err != nil {
 		return err
