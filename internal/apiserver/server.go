@@ -6,8 +6,7 @@
 package apiserver
 
 import (
-	"encoding/json"
-	"fmt"
+	"miniblog/internal/pkg/log"
 	"time"
 
 	"github.com/spf13/viper"
@@ -34,12 +33,21 @@ func (cfg *Config) NewUnionServer() (*UnionServer, error) {
 
 // Run运行应用
 func (s *UnionServer) Run() error {
-	fmt.Printf("ServerMode from ServerOptions: %s\n", s.cfg.JWTKey)
-	fmt.Printf("ServerMode from Viper: %s\n\n", viper.GetString("jwt-key"))
+	// 打印配置内容
+	// fmt.Printf("ServerMode from ServerOptions: %s\n", s.cfg.JWTKey)
+	// fmt.Printf("ServerMode from Viper: %s\n\n", viper.GetString("jwt-key"))
 
-	jsonData, _ := json.MarshalIndent(s.cfg, "", " ")
-	fmt.Println(jsonData)
+	// log包打印
+	log.Infow("ServerMode from ServerOptions", "jwt-key", s.cfg.JWTKey)
+	log.Infow("ServerMode from Viper", "jwt-key", viper.GetString("jwt-key"))
 
-	select {}
+	// jsonData, _ := json.MarshalIndent(s.cfg, "", " ")
+	// fmt.Println(jsonData)
+
+	// 空的select{} 语句会永久阻塞当前goroutine
+	// 在服务器应用中, 这种模式通常用于保持main goroutine不退出,
+	// 但前提是有其他goroutine在运行当没有其他活跃的goroutine时,
+	// 就会触发"all goroutines are asleep - deadlock"错误
+	// select {}
 	return nil
 }

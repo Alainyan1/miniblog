@@ -13,7 +13,8 @@ OUTPUT_DIR := $(PROJECT_ROOT_DIR)/_output
 
 # ============================
 # 定义版本相关变量
-# 指定应用使用的version包, 会通过 `-ldflags -X` 向该包中指定的变量注入值 
+# 指定应用使用的version包, 会通过 `-ldflags -X` 向该包中指定的变量注入值
+# 与go.mod文件中的module路径一致
 VERSION_PACKAGE=miniblog/pkg/version
 # 定义VERSION语义化版本号
 ifeq ($(origin VERSION), undefined)

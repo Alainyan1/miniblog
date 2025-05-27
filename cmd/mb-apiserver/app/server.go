@@ -7,6 +7,7 @@ package app
 
 import (
 	"miniblog/cmd/mb-apiserver/app/options"
+	"miniblog/internal/pkg/log"
 	"miniblog/pkg/version"
 
 	"github.com/spf13/cobra"
@@ -85,6 +86,11 @@ func run(opts *options.ServerOptions) error {
 	// 如果传入 --version, 则打印版本信息并推出
 	version.PrintAndExitIfRequested()
 
+	// 初始化日志
+	log.Init(logOptions())
+	// 确保日志在退出时被刷新到磁盘
+	defer log.Sync()
+
 	// 将 viper 中的配置解析到 opts.
 	if err := viper.Unmarshal(opts); err != nil {
 		return err
@@ -110,4 +116,27 @@ func run(opts *options.ServerOptions) error {
 
 	// 启动服务器
 	return server.Run()
+}
+
+// logOptions 从viper中读取日志配置, 构建*log.Options并返回
+// viper.Get<Type> 中key到名字需要使用.分割, 以跟yaml中保持相同的缩进
+func logOptions() *log.Options {
+	opts := log.NewOptions()
+
+	if viper.IsSet("log.diable-caller") {
+		opts.DisableCaller = viper.GetBool("log.diable-caller")
+	}
+	if viper.IsSet("log.disable-stacktrace") {
+		opts.DisableStacktrace = viper.GetBool("log.disable-stacktrace")
+	}
+	if viper.IsSet("log.level") {
+		opts.Level = viper.GetString("log.level")
+	}
+	if viper.IsSet("log.format") {
+		opts.Format = viper.GetString("log.format")
+	}
+	if viper.IsSet("log.output-paths") {
+		opts.OutputPaths = viper.GetStringSlice("log.output-paths")
+	}
+	return opts
 }
