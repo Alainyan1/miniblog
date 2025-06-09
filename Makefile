@@ -11,6 +11,9 @@ PROJECT_ROOT_DIR := /Users/paulfaltings/Desktop/goproject/miniblog
 # 构建产物, 临时文件存放目录
 OUTPUT_DIR := $(PROJECT_ROOT_DIR)/_output
 
+# Protobuf文件路径
+APIROOT = $(PROJECT_ROOT_DIR)/pkg/api
+
 # ============================
 # 定义版本相关变量
 # 指定应用使用的version包, 会通过 `-ldflags -X` 向该包中指定的变量注入值
@@ -77,3 +80,29 @@ tidy:
 .PHONY: clean
 clean:
 	@-rm -vrf $(OUTPUT_DIR)
+
+# protoc是protocol buffers文件的编译工具
+# 通过插件机制实现对不同语言的支持, 例如使用--xxx_out时会首先查询是否存在内置的xxx插件
+# 如果没有内置插件, 则会继续查询系统中是否存在名为xxx的可执行程序
+# --go_out使用的插件为protoc-gen-go
+# --proto_path或-l: 用于指定编译源码的搜索路径m 在构建.proto时, 会在这些路径下查找所需的Protobuf文件及其依赖
+# --go_out: 用于生成与gRPC相关的go代码, 并配置生成文件的路径和文件结构, 主要参数包括plugins, paths, 分别表示生成go代码需要的插件及生成代码的位置
+# paths参数支持import和source_relative两个选项
+# import: 按照生成的go代码包的全路径创建目录结构
+# source_relative: 生成文件应保持与输入文件相对路径一致
+# --go-grpc_out: 功能与--go_out类似, 指定生成的*_grpc.pb.go文件的存放路径
+.PHONY: protoc
+protoc: #编译protobuf文件
+	@echo "=========> Generate Protobuf Files"
+	@protoc   \
+		--proto_path=$(APIROOT) \
+		--proto_path=$(PROJECT_ROOT_DIR)/third_party/protobuf \
+		--go_out=paths=source_relative:$(APIROOT) \
+		--go-grpc_out=paths=source_relative:$(APIROOT) \
+		$(shell find $(APIROOT) -name *.proto)
+
+.PHONY: debug-protoc
+debug-protoc:
+	@echo "PROJECT_ROOT_DIR: $(PROJECT_ROOT_DIR)" 
+	@echo "APIROOT: $(APIROOT)"
+	@echo "Proto files: $(shell find $(APIROOT) -name *.proto)"

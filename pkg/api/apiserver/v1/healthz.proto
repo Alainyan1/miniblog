@@ -1,0 +1,28 @@
+// Healthz API 定义, 包含健康检查响应的相关消息和状态
+syntax = "proto3";
+
+package v1;
+
+option go_package = "miniblog/pkg/api/apiserver/v1;v1";
+
+// 表示服务的健康状态
+enum ServiceStatus {
+    Healthy = 0;
+    Unhealthy = 1;
+}   
+
+// 使用message关键字定义消息类型(即接口参数)
+// 消息类型由多个字段组成, 等号右边的是数字标签, 不是默认值, 是唯一标识符, 类似数据库的主键
+// 标识符用于在编译后以的二进制消息格式中对字段进行识别
+// 一旦protobuf投入使用, 标识符就不应该再修改
+// 数字标签取值范围为[1, 536870911], 其中19000-19999为保留值不能使用
+// 可以使用singular(字段只可以出现0,1次), optional(可选字段), repeated(可重复多次, 包括0次)修饰字段
+// 表示健康检查的响应结构体
+message HealthzResponse {
+    // 服务健康状态
+    ServiceStatus status = 1;
+    // 请求时间戳
+    string timestamp = 2;
+    // 可选的状态消息, 描述服务健康的更多信息
+    string message = 3;
+}
