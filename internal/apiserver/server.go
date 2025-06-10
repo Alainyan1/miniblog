@@ -6,10 +6,14 @@
 package apiserver
 
 import (
+	"context"
+	"errors"
 	"miniblog/internal/pkg/log"
 	"net"
+	"net/http"
 	"time"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	genericoptions "github.com/onexstack/onexstack/pkg/options"
 
 	handler "miniblog/internal/apiserver/handler/grpc"
@@ -17,6 +21,8 @@ import (
 	apiv1 "miniblog/pkg/api/apiserver/v1"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 const (
@@ -38,6 +44,7 @@ type Config struct {
 	ServerMode  string
 	JWTKey      string
 	Expiration  time.Duration
+	HTTPOptions *genericoptions.HTTPOptions
 	GRPCOptions *genericoptions.GRPCOptions
 }
 
@@ -100,5 +107,44 @@ func (cfg *Config) NewUnionServer() (*UnionServer, error) {
 
 func (s *UnionServer) Run() error {
 	log.Infow("Start to listening the incoming requests on grpc address", "addr", s.cfg.GRPCOptions.Addr)
-	return s.srv.Serve(s.lis)
+
+	// 在协程中启动grpc服务
+	// 要先于http服务器启动, 否则http服务器无法转发请求到grpc服务器
+	go s.srv.Serve(s.lis)
+
+	// insecure.NewCredentials()用于创建不安全的传输凭据Transport Credentials
+	// 因为http请求转发到grpc客户端时内部转发行为, 所以这里不用进行通信加密和身份验证
+	dialOptions := []grpc.DialOption{grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	// 通过NewClient创建grpc客户端连接 conn
+	conn, err := grpc.NewClient(s.cfg.GRPCOptions.Addr, dialOptions...)
+	if err != nil {
+		return err
+	}
+
+	gwmux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{
+			// 设置序列号protobuf数据时, 枚举类型的字段以数字格式输出
+			// 否则, 默认会以字符串格式输出, 跟枚举类型定义不一致
+			UseEnumNumbers: true,
+		},
+	}))
+
+	// 注册http路由, 并将grpc服务的方法注册为http rest接口, 并将http请求转换为grpc接口请求, 发送到grpc客户端连接 conn 中
+	if err := apiv1.RegisterMiniBlogHandler(context.Background(), gwmux, conn); err != nil {
+		return err
+	}
+
+	log.Infow("Start to Listen the incoming requests", "protocol", "http", "addr", s.cfg.HTTPOptions.Addr)
+	// 创建http服务实例httpsrv
+	httpsrv := &http.Server{
+		Addr:    s.cfg.HTTPOptions.Addr,
+		Handler: gwmux,
+	}
+
+	// 调用httpsrv.ListenAndServe启动http服务
+	if err := httpsrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+	return nil
 }

@@ -1,3 +1,8 @@
+// Copyright 2024 alainyan <alainyan@yahoo.com>. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file. The original repo for
+// this file is https://github.com/Alainyan1/miniblog.
+
 syntax = "proto3"; // 首个非空非注释行必须注明使用的Protobuf的版本
 
 package v1; // package关键字用于指定生成的 .pb.go 文件所属的包名
@@ -5,7 +10,7 @@ package v1; // package关键字用于指定生成的 .pb.go 文件所属的包�
 
 // 导入其他文件
 // 提供用于定义http映射的功能, 通过option(google.api.http)实现grpc到http的映射
-// import "google/api/annotations.proto";
+import "google/api/annotations.proto";
 // 提供了一个标准的空消息类型google.protobuf.Empty, 适用于rpc方法不需要输出或输出消息的场景
 import "google/protobuf/empty.proto";  //导入空消息
 // 定义当前服务所依赖的健康检查消息
@@ -15,40 +20,40 @@ import "apiserver/v1/healthz.proto"; // 健康检查消息定义
 // // 当前服务所依赖的用户消息
 // import "apiserver/v1/user.proto";
 // // 为生成OpenAPI文档提供相关注释(如标题, 版本, 作者, 许可证信息等)
-// import "protoc-gen-openapiv2/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 // 对.proto文件进行配置, go_package是必须的配置项, 其值必须设定为包的导入路径
 // 指定协议缓冲区文件生成的go代码所在包的路径
 // 包路径为miniblog/pkg/api/apiserver/v1, 别名v1
 option go_package = "miniblog/pkg/api/apiserver/v1;v1";
 
-// // OpenAPI 全局配置, 提供详细配置信息, 用于生成OpenAPI文档
-// option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-//     info: {
-//         // API 名称
-//         title: "miniblog API";
-//         // API 版本
-//         version: "1.0";
-//         // API 描述
-//         description: "";
-//         // 开发者联系方式
-//         contract: {
-//             name: "mini blog framework"
-//             url: "https://github/Alainyan1/miniblog";
-//             email: "alain.yan@yahoo.com"
-//         };
-//         // 许可证信息
-//         license: {
-//             name: "MIT License";
-//             url: "https://github.com/Alainyan1/miniblog/blob/main/LICENSE"
-//         };
-//     };
-//     // 指定访问协议为https
-//     schemes: HTTPS;
-//     // 服务请求和响应的格式
-//     consumes: "application/json";
-//     produces: "application/json";
-// };
+// OpenAPI 全局配置, 提供详细配置信息, 用于生成OpenAPI文档
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        // API 名称
+        title: "miniblog API";
+        // API 版本
+        version: "1.0";
+        // API 描述
+        description: "";
+        // 开发者联系方式
+        contact: {
+            name: "mini blog framework"
+            url: "https://github/Alainyan1/miniblog";
+            email: "alain.yan@yahoo.com"
+        };
+        // 许可证信息
+        license: {
+            name: "MIT License";
+            url: "https://github.com/Alainyan1/miniblog/blob/main/LICENSE"
+        };
+    };
+    // 指定访问协议为https
+    schemes: HTTPS;
+    // 服务请求和响应的格式
+    consumes: "application/json";
+    produces: "application/json";
+};
 
 // 定义了一个MiniBlog RPC 服务
 // service关键字用来定义一个Miniblog服务, 服务包含了所有的RPC接口
@@ -56,19 +61,19 @@ service MiniBlog {
     // 健康检查, 包含请求参数google.protobuf.Empty和返回值HealthzResponse
     // 使用rpc关键字来定义服务的api接口
     rpc Healthz(google.protobuf.Empty) returns (HealthzResponse) {
-        // // 通过google.api.http注释, 指定http方法为get, url路径为/healthz
-        // option (google.api.http) = {
-        //     get: "/healthz",
-        // };
+        // 通过google.api.http注释, 指定http方法为get, url路径为/healthz
+        option (google.api.http) = {
+            get: "/healthz",
+        };
 
-        // option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        //     // 在OpenAPI文档中的接口简要描述
-        //     summary: "服务健康检查";
-        //     // 标识该操作的唯一id
-        //     operation_id: "Healthz";
-        //     // 归类为服务治理
-        //     tags: "服务治理";
-        // };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            // 在OpenAPI文档中的接口简要描述
+            summary: "服务健康检查";
+            // 标识该操作的唯一id
+            operation_id: "Healthz";
+            // 归类为服务治理
+            tags: "服务治理";
+        };
     }
 
     // rpc Login(LoginRequest) returns (LoginResponse) {

@@ -1,0 +1,112 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "miniblog API",
+    "version": "1.0",
+    "contact": {
+      "name": "mini blog framework",
+      "url": "https://github/Alainyan1/miniblog",
+      "email": "alain.yan@yahoo.com"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://github.com/Alainyan1/miniblog/blob/main/LICENSE"
+    }
+  },
+  "tags": [
+    {
+      "name": "MiniBlog"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "服务健康检查",
+        "operationId": "Healthz",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1HealthzResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "服务治理"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1HealthzResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/v1ServiceStatus",
+          "title": "服务健康状态"
+        },
+        "timestamp": {
+          "type": "string",
+          "title": "请求时间戳"
+        },
+        "message": {
+          "type": "string",
+          "title": "可选的状态消息, 描述服务健康的更多信息"
+        }
+      },
+      "title": "使用message关键字定义消息类型(即接口参数)\n消息类型由多个字段组成, 等号右边的是数字标签, 不是默认值, 是唯一标识符, 类似数据库的主键\n标识符用于在编译后以的二进制消息格式中对字段进行识别\n一旦protobuf投入使用, 标识符就不应该再修改\n数字标签取值范围为[1, 536870911], 其中19000-19999为保留值不能使用\n可以使用singular(字段只可以出现0,1次), optional(可选字段), repeated(可重复多次, 包括0次)修饰字段\n表示健康检查的响应结构体"
+    },
+    "v1ServiceStatus": {
+      "type": "string",
+      "enum": [
+        "Healthy",
+        "Unhealthy"
+      ],
+      "default": "Healthy",
+      "title": "表示服务的健康状态"
+    }
+  }
+}
