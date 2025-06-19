@@ -41,6 +41,9 @@ func (s *HTTPServer) RunOrDie() {
 // 优雅关停
 func (s *HTTPServer) GracefulStop(ctx context.Context) {
 	log.Infow("Gracefully stop HTTP(s) server")
+	// http.Server的shutdown工作流程如下:
+	// 首先关闭所有已开启的监听器, 然后关闭所有的空闲连接, 等待所有活跃连接进入空闲状态后终止服务
+	// 如果传入的ctx在服务完成终止前超时, 则shutdown方法会返回context相关的错误, 否则会返回由关闭服务监听器引发的其他错误
 	if err := s.srv.Shutdown(ctx); err != nil {
 		log.Errorw("HTTP(s) server forced to shutdown", "err", err)
 	}

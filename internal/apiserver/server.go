@@ -6,7 +6,12 @@
 package apiserver
 
 import (
+	"context"
 	"miniblog/internal/pkg/log"
+	"os"
+	"os/signal"
+
+	"syscall"
 	"time"
 
 	"miniblog/internal/pkg/server"
@@ -84,7 +89,29 @@ func (cfg *Config) NewUnionServer() (*UnionServer, error) {
 }
 
 func (s *UnionServer) Run() error {
-	s.srv.RunOrDie()
+	// 使用协程启动服务器, 保证主线程不会被阻塞
+	go s.srv.RunOrDie()
+
+	// 创建一个os.Signal类型的通道用于接收系统信号
+	quit := make(chan os.Signal, 1)
+
+	// 当执行 kill 命令时（不带参数），默认会发送 syscall.SIGTERM 信号
+	// 使用 kill -2 命令会发送 syscall.SIGINT 信号（例如按 CTRL+C 触发）
+	// 使用 kill -9 命令会发送 syscall.SIGKILL 信号, 但 SIGKILL 信号无法被捕获, 因此无需监听和处理
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	// 阻塞程序, 等待从quit channel中接受信号
+	<-quit
+	log.Infow("Shutting down server...")
+
+	// 优雅关停, 通过context.WithTimeout创建上下文对象, 为优雅关停服务提供超时控制
+	// 确保在一定时间内完成清理工作, 如果超过指定时间, 服务将被强制终止
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 先关闭依赖的服务, 在关闭被依赖的服务, ctx被传递给s.srv.GracefulStop方法, 用于通知服务相关的协程
+	// 服务中的任务可以通过监听ctx.Done来检测是否需要终止
+	s.srv.GracefulStop(ctx)
+	log.Infow("Server exited")
 	return nil
 }
 
