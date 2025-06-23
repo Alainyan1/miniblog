@@ -6,6 +6,9 @@
 package log
 
 import (
+	"context"
+	"miniblog/internal/pkg/contextx"
+	"miniblog/internal/pkg/known"
 	"sync"
 	"time"
 
@@ -199,4 +202,36 @@ func Fatalw(msg string, kvs ...any) {
 
 func (l *zapLogger) Fatalw(msg string, kvs ...any) {
 	l.z.Sugar().Fatalw(msg, kvs...)
+}
+
+// W解析传入的context, 尝试提取关注的键值, 并添加到日志中
+func W(ctx context.Context) Logger {
+	return std.W(ctx)
+}
+
+// W是WithContext的简称, 缩短函数名可以减小日志打印代码行的宽度, 减小日志行代码的折行概率
+func (l *zapLogger) W(ctx context.Context) Logger {
+	lc := l.clone()
+
+	// 定义一个映射, 关联context提取函数和日志字段名
+	contextExtractors := map[string]func(context.Context) string{
+		known.XRequestID: contextx.RequestID,
+		known.XUserID:    contextx.UserID,
+	}
+
+	// 变量映射, 从context中提取值并添加到日志中
+	for fieldName, extractor := range contextExtractors {
+		if val := extractor(ctx); val != "" {
+			lc.z = lc.z.With(zap.String(fieldName, val))
+		}
+	}
+
+	return lc
+}
+
+// 深拷贝zapLogger
+// 由于log包会被多个请求并发调用, 为了防止请求ID被污染, 每个请求都会对log包深拷贝一个*zapLogger对象, 然后再添加请求id
+func (l *zapLogger) clone() *zapLogger {
+	newLogger := *l
+	return &newLogger
 }

@@ -11,6 +11,7 @@ import (
 	"miniblog/internal/pkg/server"
 
 	handler "miniblog/internal/apiserver/handler/grpc"
+	mw "miniblog/internal/pkg/middleware/grpc"
 	apiv1 "miniblog/pkg/api/apiserver/v1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -30,13 +31,23 @@ var _ server.Server = (*grpcServer)(nil)
 // NewGRPCServerOr 创建并初始化 gRPC 或者 gRPC +  gRPC-Gateway 服务器.
 // 在 Go 项目开发中，NewGRPCServerOr 这个函数命名中的 Or 一般用来表示"或者"的含义
 // 通常暗示该函数会在两种或多种选择中选择一种可能性. 具体的含义需要结合函数的实现
-// 或上下文来理解。以下是一些可能的解释：
+// 或上下文来理解, 以下是一些可能的解释：
 //  1. 提供多种构建方式的选择
 //  2. 处理默认值或回退逻辑
 //  3. 表达灵活选项
 func (c *ServerConfig) NewGRPCServerOr() (server.Server, error) {
+	// 配置grpc服务器选项, 包括拦截器
+	serverOptions := []grpc.ServerOption{
+		// 注意拦截器顺序
+		grpc.ChainUnaryInterceptor(
+			// 请求id拦截器
+			mw.RequestIDInterprceptor(),
+		),
+	}
+	// 创建grpc服务器
 	grpcsrv, err := server.NewGRPCServer(
 		c.cfg.GRPCOptions,
+		serverOptions,
 		func(s grpc.ServiceRegistrar) {
 			apiv1.RegisterMiniBlogServer(s, handler.NewHandler())
 		},
