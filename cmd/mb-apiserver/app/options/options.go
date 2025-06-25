@@ -32,7 +32,7 @@ var availableServerModes = sets.New(
 // 服务器配置选项
 type ServerOptions struct {
 	// ServerMode定义服务器模式: gRPC, Gin HTTP, HTTP Reverse Proxy
-	ServerMode string `json:"server-mode" mapstructuree:"server-mode"`
+	ServerMode string `json:"server-mode" mapstructure:"server-mode"`
 
 	// JWTKey定义JWT密钥
 	JWTKey string `json:"jwt-key" mapstructure:"jwt-key"`
@@ -50,7 +50,7 @@ type ServerOptions struct {
 // 创建带有默认值的ServerOptions实例
 func NewServerOptions() *ServerOptions {
 	opts := &ServerOptions{
-		ServerMode:  "grpc-gateway",
+		ServerMode:  apiserver.GRPCGatewayServerMode,
 		JWTKey:      "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
 		Expiration:  2 * time.Hour,
 		HTTPOptions: genericoptions.NewHTTPOptions(),
