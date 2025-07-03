@@ -7,11 +7,23 @@ package model
 
 import (
 	"miniblog/internal/pkg/rid"
+	"miniblog/pkg/auth"
 
 	"gorm.io/gorm"
 )
 
 // 实现钩子函数, 用于在模型操作前后执行特定逻辑
+
+// 在创建数据库记录前加密明文密码
+func (m *UserM) BeforeCreate(tx *gorm.DB) error {
+	var err error
+	m.Password, err = auth.Encrypt(m.Password)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // 在创建数据库记录后生成postID
 func (m *PostM) AfterCreate(tx *gorm.DB) error {
