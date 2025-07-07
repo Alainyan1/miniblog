@@ -38,7 +38,7 @@ type User struct {
 	// username 表示用户名称
 	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// nickname 表示用户昵称
-	Nickname string `protobuf:"bytes,3,opt,name=nickname,proto3" json:"nickname,omitempty"`
+	Nickname *string `protobuf:"bytes,3,opt,name=nickname,proto3,oneof" json:"nickname,omitempty"`
 	// email 表示用户电子邮箱
 	Email string `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	// phone 表示用户手机号
@@ -98,8 +98,8 @@ func (x *User) GetUsername() string {
 }
 
 func (x *User) GetNickname() string {
-	if x != nil {
-		return x.Nickname
+	if x != nil && x.Nickname != nil {
+		return *x.Nickname
 	}
 	return ""
 }
@@ -982,16 +982,17 @@ var File_apiserver_v1_user_proto protoreflect.FileDescriptor
 
 const file_apiserver_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x17apiserver/v1/user.proto\x12\x02v1\x1a,github.com/onexstack/defaults/defaults.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x94\x02\n" +
+	"\x17apiserver/v1/user.proto\x12\x02v1\x1a,github.com/onexstack/defaults/defaults.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb8\x02\n" +
 	"\x04User\x12\x16\n" +
 	"\x06userID\x18\x01 \x01(\tR\x06userID\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x1a\n" +
-	"\bnickname\x18\x03 \x01(\tR\bnickname\x12\x14\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x121\n" +
+	"\bnickname\x18\x03 \x01(\tB\x10\x9aI\rr\vhello worldH\x00R\bnickname\x88\x01\x01\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12\x14\n" +
 	"\x05phone\x18\x05 \x01(\tR\x05phone\x12\x1c\n" +
 	"\tpostCount\x18\x06 \x01(\x03R\tpostCount\x128\n" +
 	"\tcreatedAt\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x128\n" +
-	"\tupdatedAt\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"F\n" +
+	"\tupdatedAt\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\v\n" +
+	"\t_nickname\"F\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"]\n" +
@@ -1095,6 +1096,7 @@ func file_apiserver_v1_user_proto_init() {
 	if File_apiserver_v1_user_proto != nil {
 		return
 	}
+	file_apiserver_v1_user_proto_msgTypes[0].OneofWrappers = []any{}
 	file_apiserver_v1_user_proto_msgTypes[7].OneofWrappers = []any{}
 	file_apiserver_v1_user_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}

@@ -20,7 +20,7 @@ message User {
     // username 表示用户名称
     string username = 2;
     // nickname 表示用户昵称
-    string nickname = 3;
+    optional string nickname = 3 [(defaults.value).string = "hello world"];
     // email 表示用户电子邮箱
     string email = 4;
     // phone 表示用户手机号
