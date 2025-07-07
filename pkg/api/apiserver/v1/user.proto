@@ -11,7 +11,7 @@ package v1;
 import "github.com/onexstack/defaults/defaults.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/onexstack/miniblog/pkg/api/apiserver/v1;v1";
+option go_package = "miniblog/pkg/api/apiserver/v1;v1";
 
 // User 表示用户信息
 message User {

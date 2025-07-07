@@ -41,14 +41,47 @@ func (c *ServerConfig) NewGinServer() server.Server {
 
 // 注册API路由, 路由的路径和http方法遵守REST规范
 func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) {
-	// 注册业务无关的API接口
+	// 注册业务无关的API接口, 例如版本信息等
 	InstallGenericAPI(engine)
 
 	// 创建业务处理器
-	handler := handler.NewHandler()
+	handler := handler.NewHandler(c.biz)
 
 	// 注册健康检查接口
 	engine.GET("/healthz", handler.Healthz)
+
+	// 注册用户登录和令牌刷新接口
+	engine.POST("login", handler.Login)
+	engine.PUT("/refresh-token", handler.RefreshToken)
+
+	// 中间件切片, 用于在请求处理前后执行逻辑, 如JWT认证
+	authMiddlewares := []gin.HandlerFunc{}
+
+	// 注册v1版本API路由分组
+	v1 := engine.Group("/v1")
+	{
+		userv1 := v1.Group("/users")
+		{
+			// 创建用户不用进行认证和授权
+			userv1.POST("", handler.CreateUser)
+			// 其余需要进行认证和授权
+			userv1.Use(authMiddlewares...)
+			userv1.PUT(":userID/change-password", handler.ChangePassword) // 修改用户密码
+			userv1.PUT(":userID", handler.UpdateUser)                     // 更新用户信息
+			userv1.DELETE(":userID", handler.DeleteUser)                  // 删除用户
+			userv1.GET(":userID", handler.GetUser)                        // 查询用户详情
+			userv1.GET("", handler.ListUser)                              // 查询用户列表.
+		}
+
+		postv1 := v1.Group("/posts", authMiddlewares...)
+		{
+			postv1.POST("", handler.CreatePost)       // 创建博客
+			postv1.PUT(":postID", handler.UpdatePost) // 更新博客
+			postv1.DELETE("", handler.DeletePost)     // 删除博客
+			postv1.GET(":postID", handler.GetPost)    // 查询博客详情
+			postv1.GET("", handler.ListPost)          // 查询博客列表
+		}
+	}
 }
 
 // 注册业务无关的路由

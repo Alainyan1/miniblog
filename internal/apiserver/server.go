@@ -7,6 +7,9 @@ package apiserver
 
 import (
 	"context"
+	"miniblog/internal/apiserver/biz"
+	"miniblog/internal/apiserver/store"
+	"miniblog/internal/pkg/contextx"
 	"miniblog/internal/pkg/log"
 	"os"
 	"os/signal"
@@ -17,6 +20,8 @@ import (
 	"miniblog/internal/pkg/server"
 
 	genericoptions "github.com/onexstack/onexstack/pkg/options"
+	"github.com/onexstack/onexstack/pkg/store/where"
+	"gorm.io/gorm"
 )
 
 const (
@@ -35,11 +40,12 @@ const (
 
 // 存储应用相关配置
 type Config struct {
-	ServerMode  string
-	JWTKey      string
-	Expiration  time.Duration
-	HTTPOptions *genericoptions.HTTPOptions
-	GRPCOptions *genericoptions.GRPCOptions
+	ServerMode   string
+	JWTKey       string
+	Expiration   time.Duration
+	HTTPOptions  *genericoptions.HTTPOptions
+	GRPCOptions  *genericoptions.GRPCOptions
+	MySQLOptions *genericoptions.MySQLOptions
 }
 
 // UnionServer 定义一个联合服务器. 根据 ServerMode 决定要启动的服务器类型.
@@ -57,10 +63,18 @@ type UnionServer struct {
 
 type ServerConfig struct {
 	cfg *Config
+	biz biz.IBiz
 }
 
 // NewUnionServer 根据配置创建联合服务器.
 func (cfg *Config) NewUnionServer() (*UnionServer, error) {
+
+	// 注册租户解析函数, 通过上下文获取用户ID, nolint: gocritic告诉静态分析工具(如 golangci-lint)忽略特定代码行的某些检查规则
+	//nolint: gocritic
+	where.RegisterTenant("userID", func(ctx context.Context) string {
+		return contextx.UserID(ctx)
+	})
+
 	// 创建服务配置
 	serverConfig, err := cfg.NewServerConfig()
 	if err != nil {
@@ -115,10 +129,25 @@ func (s *UnionServer) Run() error {
 	return nil
 }
 
+// 创建一个gorm.DB实例
+func (cfg *Config) NewDB() (*gorm.DB, error) {
+	return cfg.MySQLOptions.NewDB()
+}
+
 // 创建一个*ServerConfig实例
 // 后续可以使用依赖注入的方式
 func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
-	return &ServerConfig{cfg: cfg}, nil
+	db, err := cfg.NewDB()
+	if err != nil {
+		return nil, err
+	}
+
+	store := store.NewStore(db)
+
+	return &ServerConfig{
+		cfg: cfg,
+		biz: biz.NewBiz(store),
+	}, nil
 }
 
 // func (s *UnionServer) Run() error {

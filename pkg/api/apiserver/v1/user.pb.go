@@ -694,7 +694,7 @@ type DeleteUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// userID 表示用户 ID
 	// @gotags: uri:"userID"
-	UserID        string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	UserID        string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty" uri:"userID"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -778,7 +778,7 @@ type GetUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// userID 表示用户 ID
 	// @gotags: uri:"userID"
-	UserID        string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	UserID        string `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty" uri:"userID"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -871,10 +871,10 @@ type ListUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// offset 表示偏移量
 	// @gotags: form:"offset"
-	Offset int64 `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
+	Offset int64 `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty" form:"offset"`
 	// limit 表示每页数量
 	// @gotags: form:"limit"
-	Limit         int64 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit         int64 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty" form:"limit"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1041,7 +1041,7 @@ const file_apiserver_v1_user_proto_rawDesc = "" +
 	"\n" +
 	"totalCount\x18\x01 \x01(\x03R\n" +
 	"totalCount\x12\x1e\n" +
-	"\x05users\x18\x02 \x03(\v2\b.v1.UserR\x05usersB7Z5github.com/onexstack/miniblog/pkg/api/apiserver/v1;v1b\x06proto3"
+	"\x05users\x18\x02 \x03(\v2\b.v1.UserR\x05usersB\"Z miniblog/pkg/api/apiserver/v1;v1b\x06proto3"
 
 var (
 	file_apiserver_v1_user_proto_rawDescOnce sync.Once

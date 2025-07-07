@@ -5,8 +5,14 @@
 
 package http
 
-type Handler struct{}
+import "miniblog/internal/apiserver/biz"
 
-func NewHandler() *Handler {
-	return &Handler{}
+type Handler struct {
+	biz biz.IBiz
+}
+
+func NewHandler(biz biz.IBiz) *Handler {
+	return &Handler{
+		biz: biz,
+	}
 }

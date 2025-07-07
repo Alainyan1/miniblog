@@ -16,9 +16,9 @@ import "google/protobuf/empty.proto";  //导入空消息
 // 定义当前服务所依赖的健康检查消息
 import "apiserver/v1/healthz.proto"; // 健康检查消息定义
 // 当前服务所依赖的博客消息
-// import "apiserver/v1/post.proto";
+import "apiserver/v1/post.proto";
 // // 当前服务所依赖的用户消息
-// import "apiserver/v1/user.proto";
+import "apiserver/v1/user.proto";
 // // 为生成OpenAPI文档提供相关注释(如标题, 版本, 作者, 许可证信息等)
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -76,189 +76,189 @@ service MiniBlog {
         };
     }
 
-    // rpc Login(LoginRequest) returns (LoginResponse) {
-    //     option (google.api.http) = {
-    //         post: "/login",
-    //         body: "*",
-    //     };
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/login",
+            body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "用户登录";
-    //         operation_id: "Login";
-    //         description: "";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "用户登录";
+            operation_id: "Login";
+            description: "";
+            tags: "用户管理";
+        };
+    }
 
-    // // RefreshToken 刷新令牌
-    // rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
-    //     option (google.api.http) = {
-    //       put: "/refresh-token",
-    //       body: "*",
-    //     };
+    // RefreshToken 刷新令牌
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+        option (google.api.http) = {
+          put: "/refresh-token",
+          body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "刷新令牌";
-    //         operation_id: "RefreshToken";
-    //         description: "";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "刷新令牌";
+            operation_id: "RefreshToken";
+            description: "";
+            tags: "用户管理";
+        };
+    }
 
-    // // 修改密码
-    // rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
-    //     option (google.api.http) = {
-    //         put: "/v1/users/{userID}/change-password",
-    //         body: "*",
-    //     };
+    // 修改密码
+    rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+        option (google.api.http) = {
+            put: "/v1/users/{userID}/change-password",
+            body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "修改密码";
-    //         operation_id: "ChangePassword";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "修改密码";
+            operation_id: "ChangePassword";
+            tags: "用户管理";
+        };
+    }
 
-    // // CreateUser 创建用户
-    // rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-    //     option (google.api.http) = {
-    //         post: "/v1/users",
-    //         body: "*",
-    //     };
+    // CreateUser 创建用户
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+        option (google.api.http) = {
+            post: "/v1/users",
+            body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "创建用户";
-    //         operation_id: "CreateUser";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "创建用户";
+            operation_id: "CreateUser";
+            tags: "用户管理";
+        };
+    }
 
-    // // UpdateUser 更新用户信息
-    // rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
-    //     option (google.api.http) = {
-    //         put: "/v1/users/{userID}",
-    //         body: "*",
-    //     };
+    // UpdateUser 更新用户信息
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+        option (google.api.http) = {
+            put: "/v1/users/{userID}",
+            body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "更新用户信息";
-    //         operation_id: "UpdateUser";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "更新用户信息";
+            operation_id: "UpdateUser";
+            tags: "用户管理";
+        };
+    }
 
-    // // DeleteUser 删除用户
-    // rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
-    //     option (google.api.http) = {
-    //         delete: "/v1/users/{userID}",
-    //     };
+    // DeleteUser 删除用户
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+        option (google.api.http) = {
+            delete: "/v1/users/{userID}",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "删除用户";
-    //         operation_id: "DeleteUser";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "删除用户";
+            operation_id: "DeleteUser";
+            tags: "用户管理";
+        };
+    }
 
-    // // GetUser 获取用户信息
-    // rpc GetUser(GetUserRequest) returns (GetUserResponse) {
-    //     option (google.api.http) = {
-    //         get: "/v1/users/{userID}",
-    //     };
+    // GetUser 获取用户信息
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+        option (google.api.http) = {
+            get: "/v1/users/{userID}",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "获取用户信息";
-    //         operation_id: "GetUser";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "获取用户信息";
+            operation_id: "GetUser";
+            tags: "用户管理";
+        };
+    }
 
-    // // ListUser 列出所有用户
-    // rpc ListUser(ListUserRequest) returns (ListUserResponse) {
-    //     option (google.api.http) = {
-    //         get: "/v1/users",
-    //     };
+    // ListUser 列出所有用户
+    rpc ListUser(ListUserRequest) returns (ListUserResponse) {
+        option (google.api.http) = {
+            get: "/v1/users",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "列出所有用户";
-    //         operation_id: "ListUser";
-    //         tags: "用户管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "列出所有用户";
+            operation_id: "ListUser";
+            tags: "用户管理";
+        };
+    }
 
-    // // CreatePost 创建文章
-    // rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {
-    //     option (google.api.http) = {
-    //         post: "/v1/posts",
-    //         body: "*",
-    //     };
+    // CreatePost 创建文章
+    rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {
+        option (google.api.http) = {
+            post: "/v1/posts",
+            body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "创建文章";
-    //         operation_id: "CreatePost";
-    //         tags: "博客管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "创建文章";
+            operation_id: "CreatePost";
+            tags: "博客管理";
+        };
+    }
 
-    // // updatePost 更新文章
-    // rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse) {
-    //     // 将UpdatePost映射为http put请求, 并通过URL /v1/posts/{postID}访问
-    //     // {postID}是一个路径参数, grpc-gateway会根据postID名称, 将其解析并映射到UpdatePost Request类型中相应的字段
-    //     // body: "*" 表示请求体中的所有字段都会映射到UpdatePostRequest类型
-    //     option (google.api.http) = {
-    //         put: "v1/posts/{postID}",
-    //         body: "*",
-    //     };
+    // updatePost 更新文章
+    rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse) {
+        // 将UpdatePost映射为http put请求, 并通过URL /v1/posts/{postID}访问
+        // {postID}是一个路径参数, grpc-gateway会根据postID名称, 将其解析并映射到UpdatePost Request类型中相应的字段
+        // body: "*" 表示请求体中的所有字段都会映射到UpdatePostRequest类型
+        option (google.api.http) = {
+            put: "/v1/posts/{postID}",
+            body: "*",
+        };
 
-    //     // 用于生成OpenAPI文档的注解
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         // 在文档中简要描述操作的功能
-    //         summary: "更新文章";
-    //         // 为操作指定唯一标识符, 便于跟踪
-    //         operation_id: "UpdatePost";
-    //         // 将此操作归类到"博客管理"标签组, 方便在OpenAPI文档中组织接口分组
-    //         tags: "博客管理";
-    //     };
-    // }
+        // 用于生成OpenAPI文档的注解
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            // 在文档中简要描述操作的功能
+            summary: "更新文章";
+            // 为操作指定唯一标识符, 便于跟踪
+            operation_id: "UpdatePost";
+            // 将此操作归类到"博客管理"标签组, 方便在OpenAPI文档中组织接口分组
+            tags: "博客管理";
+        };
+    }
 
-    // // DeletePost 删除文章
-    // rpc DeletePost(DeletePostRequest) returns (DeletePostResponse) {
-    //     option (google.api.http) = {
-    //         delete: "/v1/posts",
-    //         body: "*",
-    //     };
+    // DeletePost 删除文章
+    rpc DeletePost(DeletePostRequest) returns (DeletePostResponse) {
+        option (google.api.http) = {
+            delete: "/v1/posts",
+            body: "*",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "删除文章";
-    //         operation_id: "DeletePost";
-    //         tags: "博客管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "删除文章";
+            operation_id: "DeletePost";
+            tags: "博客管理";
+        };
+    }
 
-    // // GetPost 获取文章信息
-    // rpc GetPost(GetPostRequest) returns (GetPostResponse) {
-    //     option (google.api.http) = {
-    //         get: "/v1/posts/{postID}",
-    //     };
+    // GetPost 获取文章信息
+    rpc GetPost(GetPostRequest) returns (GetPostResponse) {
+        option (google.api.http) = {
+            get: "/v1/posts/{postID}",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "获取文章信息";
-    //         operation_id: "GetPost";
-    //         tags: "博客管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "获取文章信息";
+            operation_id: "GetPost";
+            tags: "博客管理";
+        };
+    }
 
-    // // ListPost 列出所有文章
-    // rpc ListPost(ListPostRequest) returns (ListPostResponse) {
-    //     option (google.api.http) = {
-    //         get: "/v1/posts",
-    //     };
+    // ListPost 列出所有文章
+    rpc ListPost(ListPostRequest) returns (ListPostResponse) {
+        option (google.api.http) = {
+            get: "/v1/posts",
+        };
 
-    //     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //         summary: "列出所有文章";
-    //         operation_id: "ListPost";
-    //         tags: "博客管理";
-    //     };
-    // }
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "列出所有文章";
+            operation_id: "ListPost";
+            tags: "博客管理";
+        };
+    }
 }
 
