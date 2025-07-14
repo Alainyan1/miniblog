@@ -14,6 +14,8 @@ import (
 	mw "miniblog/internal/pkg/middleware/grpc"
 	apiv1 "miniblog/pkg/api/apiserver/v1"
 
+	genericvalidation "github.com/onexstack/onexstack/pkg/validation"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
@@ -48,6 +50,11 @@ func (c *ServerConfig) NewGRPCServerOr() (server.Server, error) {
 
 			// 请求默认值设置拦截器
 			mw.DefaultInterceptor(),
+
+			// NewValidator创建通用校验层实例, 解析传入参数校验实例c.val
+			// NewValidator会从实例中提取所有方法声明格式为ValidateXXX(ctx context.Context, rq *apiv1.XXX) error的方法
+			// 将这些方法保存在通用校验层的内部registry中
+			mw.ValidatorInterceptor(genericvalidation.NewValidator(c.val)),
 		),
 	}
 	// 创建grpc服务器
