@@ -15,6 +15,7 @@ import (
 	"miniblog/internal/pkg/log"
 	apiv1 "miniblog/pkg/api/apiserver/v1"
 	"miniblog/pkg/auth"
+	"miniblog/pkg/token"
 	"sync"
 	"time"
 
@@ -71,10 +72,13 @@ func (b *userBiz) Login(ctx context.Context, rq *apiv1.LoginRequest) (*apiv1.Log
 		return nil, errno.ErrPasswordInvalid
 	}
 
-	// TODO: 实现Token签发逻辑
-	// 认证和鉴权功能设计通常比较复杂
+	// 实现Token签发逻辑, 在签发token时会在token的payload中保存用户id
+	tokenStr, expireAt, err := token.Sign(userM.UserID)
+	if err != nil {
+		return nil, errno.ErrSignToken
+	}
 
-	return &apiv1.LoginResponse{Token: "<placeholder>", ExpireAt: timestamppb.New(time.Now().Add(2 * time.Hour))}, nil
+	return &apiv1.LoginResponse{Token: tokenStr, ExpireAt: timestamppb.New(expireAt)}, nil
 }
 
 // 刷新用户的身份验证令牌

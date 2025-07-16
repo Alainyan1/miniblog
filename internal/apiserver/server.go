@@ -8,16 +8,20 @@ package apiserver
 import (
 	"context"
 	"miniblog/internal/apiserver/biz"
+	"miniblog/internal/apiserver/model"
 	"miniblog/internal/apiserver/pkg/validation"
 	"miniblog/internal/apiserver/store"
 	"miniblog/internal/pkg/contextx"
+	"miniblog/internal/pkg/known"
 	"miniblog/internal/pkg/log"
+	"miniblog/pkg/token"
 	"os"
 	"os/signal"
 
 	"syscall"
 	"time"
 
+	mw "miniblog/internal/pkg/middleware/gin"
 	"miniblog/internal/pkg/server"
 
 	genericoptions "github.com/onexstack/onexstack/pkg/options"
@@ -63,9 +67,10 @@ type UnionServer struct {
 }
 
 type ServerConfig struct {
-	cfg *Config
-	biz biz.IBiz
-	val *validation.Validator
+	cfg       *Config
+	biz       biz.IBiz
+	val       *validation.Validator
+	retriever mw.UserRetriever
 }
 
 // NewUnionServer 根据配置创建联合服务器.
@@ -76,6 +81,9 @@ func (cfg *Config) NewUnionServer() (*UnionServer, error) {
 	where.RegisterTenant("userID", func(ctx context.Context) string {
 		return contextx.UserID(ctx)
 	})
+
+	// 初始化 token 包的签名密钥、认证 Key 及 Token 默认过期时间
+	token.Init(cfg.JWTKey, known.XUserID, cfg.Expiration)
 
 	// 创建服务配置
 	serverConfig, err := cfg.NewServerConfig()
@@ -147,10 +155,21 @@ func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
 	store := store.NewStore(db)
 
 	return &ServerConfig{
-		cfg: cfg,
-		biz: biz.NewBiz(store),
-		val: validation.New(store),
+		cfg:       cfg,
+		biz:       biz.NewBiz(store),
+		val:       validation.New(store),
+		retriever: &UserRetriever{store: store},
 	}, nil
+}
+
+// UserRetriever 定义一个用户数据获取器. 用来获取用户信息.
+type UserRetriever struct {
+	store store.IStore
+}
+
+// GetUser 根据用户 ID 获取用户信息.
+func (r *UserRetriever) GetUser(ctx context.Context, userID string) (*model.UserM, error) {
+	return r.store.User().Get(ctx, where.F("userID", userID))
 }
 
 // func (s *UnionServer) Run() error {
