@@ -14,6 +14,7 @@ import (
 	"miniblog/internal/pkg/contextx"
 	"miniblog/internal/pkg/known"
 	"miniblog/internal/pkg/log"
+	"miniblog/pkg/auth"
 	"miniblog/pkg/token"
 	"os"
 	"os/signal"
@@ -71,6 +72,7 @@ type ServerConfig struct {
 	biz       biz.IBiz
 	val       *validation.Validator
 	retriever mw.UserRetriever
+	authz     *auth.Authz
 }
 
 // NewUnionServer 根据配置创建联合服务器.
@@ -154,11 +156,15 @@ func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
 
 	store := store.NewStore(db)
 
+	// 初始化权限认证模块
+	authz, err := auth.NewAuthz(store.DB(context.TODO()))
+
 	return &ServerConfig{
 		cfg:       cfg,
-		biz:       biz.NewBiz(store),
+		biz:       biz.NewBiz(store, authz),
 		val:       validation.New(store),
 		retriever: &UserRetriever{store: store},
+		authz:     authz,
 	}, nil
 }
 

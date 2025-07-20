@@ -47,12 +47,13 @@ type UserExpansion interface {
 
 type userBiz struct {
 	store store.IStore
+	authz *auth.Authz
 }
 
 var _ UserBiz = (*userBiz)(nil)
 
-func New(store store.IStore) *userBiz {
-	return &userBiz{store: store}
+func New(store store.IStore, authz *auth.Authz) *userBiz {
+	return &userBiz{store: store, authz: authz}
 }
 
 func (b *userBiz) Login(ctx context.Context, rq *apiv1.LoginRequest) (*apiv1.LoginResponse, error) {
@@ -125,6 +126,12 @@ func (b *userBiz) Create(ctx context.Context, rq *apiv1.CreateUserRequest) (*api
 		return nil, err
 	}
 
+	// 给用户添加普通用户role::user角色
+	if _, err := b.authz.AddGroupingPolicy(userM.UserID, known.RoleUser); err != nil {
+		log.W(ctx).Errorw("Failed to add grouping policy for user", "user", userM.UserID, "role", known.RoleUser)
+		return nil, errno.ErrAddRole.WithMessage(err.Error())
+	}
+
 	return &apiv1.CreateUserResponse{UserID: userM.UserID}, nil
 }
 
@@ -162,6 +169,11 @@ func (b *userBiz) Delete(ctx context.Context, rq *apiv1.DeleteUserRequest) (*api
 	// 因为where.T()会添加条件, 只会针对特定的数据进行查询
 	if err := b.store.User().Delete(ctx, where.F("userID", rq.GetUserID())); err != nil {
 		return nil, err
+	}
+
+	if _, err := b.authz.RemoveGroupingPolicy(rq.GetUserID(), known.RoleUser); err != nil {
+		log.W(ctx).Errorw("Failed to remove grouping policy for user", "user", rq.GetUserID(), "role", known.RoleUser)
+		return nil, errno.ErrRemoveRole.WithMessage(err.Error())
 	}
 
 	return &apiv1.DeleteUserResponse{}, nil
