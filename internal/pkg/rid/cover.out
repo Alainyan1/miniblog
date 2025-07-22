@@ -1,0 +1,14 @@
+mode: set
+miniblog/internal/pkg/rid/rid.go:22.39,24.2 1 1
+miniblog/internal/pkg/rid/rid.go:27.50,36.2 2 1
+miniblog/internal/pkg/rid/salt.go:17.20,24.2 4 1
+miniblog/internal/pkg/rid/salt.go:27.29,31.39 3 1
+miniblog/internal/pkg/rid/salt.go:31.39,33.3 1 1
+miniblog/internal/pkg/rid/salt.go:35.2,35.39 1 1
+miniblog/internal/pkg/rid/salt.go:35.39,39.3 3 1
+miniblog/internal/pkg/rid/salt.go:39.8,41.57 1 0
+miniblog/internal/pkg/rid/salt.go:41.57,42.99 1 0
+miniblog/internal/pkg/rid/salt.go:45.2,45.11 1 1
+miniblog/internal/pkg/rid/salt.go:49.46,51.34 2 1
+miniblog/internal/pkg/rid/salt.go:51.34,53.3 1 1
+miniblog/internal/pkg/rid/salt.go:54.2,54.26 1 1

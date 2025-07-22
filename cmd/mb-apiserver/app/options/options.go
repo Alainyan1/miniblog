@@ -48,6 +48,9 @@ type ServerOptions struct {
 
 	// MySQLOptions 包含 MySQL 配置选项
 	MySQLOptions *genericoptions.MySQLOptions `json:"mysql" mapstructure:"mysql"`
+
+	// TLSOptions 包含 TLS 配置选项.
+	TLSOptions *genericoptions.TLSOptions `json:"tls" mapstructure:"tls"`
 }
 
 // 创建带有默认值的ServerOptions实例
@@ -56,6 +59,7 @@ func NewServerOptions() *ServerOptions {
 		ServerMode:   apiserver.GRPCGatewayServerMode,
 		JWTKey:       "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
 		Expiration:   2 * time.Hour,
+		TLSOptions:   genericoptions.NewTLSOptions(),
 		HTTPOptions:  genericoptions.NewHTTPOptions(),
 		GRPCOptions:  genericoptions.NewGRPCOptions(),
 		MySQLOptions: genericoptions.NewMySQLOptions(),
@@ -76,6 +80,7 @@ func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
 	// 绑定 JWT Token 的过期时间选项到命令行标志。
 	// 参数名称为 `--expiration`, 默认值为 o.Expiration
 	fs.DurationVar(&o.Expiration, "expiration", o.Expiration, "The expiration duration of JWT tokens.")
+	o.TLSOptions.AddFlags(fs)
 	o.HTTPOptions.AddFlags(fs)
 	o.GRPCOptions.AddFlags(fs)
 	o.MySQLOptions.AddFlags(fs)
@@ -96,7 +101,9 @@ func (o *ServerOptions) Validate() error {
 	}
 
 	// 校验子选项
+	errs = append(errs, o.TLSOptions.Validate()...)
 	errs = append(errs, o.HTTPOptions.Validate()...)
+	errs = append(errs, o.MySQLOptions.Validate()...)
 
 	// 如果是grpc或grpc-gateway模式, 校验grpc配置
 	if stringsutil.StringIn(o.ServerMode, []string{apiserver.GRPCServerMode, apiserver.GRPCGatewayServerMode}) {
@@ -113,6 +120,7 @@ func (o *ServerOptions) Config() (*apiserver.Config, error) {
 		ServerMode:   o.ServerMode,
 		JWTKey:       o.JWTKey,
 		Expiration:   o.Expiration,
+		TLSOptions:   o.TLSOptions,
 		HTTPOptions:  o.HTTPOptions,
 		GRPCOptions:  o.GRPCOptions,
 		MySQLOptions: o.MySQLOptions,

@@ -14,6 +14,9 @@ OUTPUT_DIR := $(PROJECT_ROOT_DIR)/_output
 # Protobuf文件路径
 APIROOT = $(PROJECT_ROOT_DIR)/pkg/api
 
+# makefile的shell切换为bash
+SHELL := /bin/bash
+
 # ============================
 # 定义版本相关变量
 # 指定应用使用的version包, 会通过 `-ldflags -X` 向该包中指定的变量注入值
@@ -114,3 +117,28 @@ debug-protoc:
 	@echo "PROJECT_ROOT_DIR: $(PROJECT_ROOT_DIR)" 
 	@echo "APIROOT: $(APIROOT)"
 	@echo "Proto files: $(shell find $(APIROOT) -name *.proto)"
+
+.PHONY: ca
+ca: #生成CA文件
+	@mkdir -p $(OUTPUT_DIR)/cert
+	@# 1. 生成根证书私钥(CA key), 指定私钥大小4096
+	@openssl genrsa -out $(OUTPUT_DIR)/cert/ca.key 4096
+	@# 2. 使用根私钥生成证书签名请求文件(CA CSR), 有效期为 10 年
+	@# req命令创建证书的请求文件, nodes表示不加密私钥, new创建新的证书请求文件, key指定使用的私钥文件, out指定输出文件路径, subj设置或修改证书请求中的主体信息
+	@openssl req -new -nodes -key $(OUTPUT_DIR)/cert/ca.key -sha256 -days 3650 -out $(OUTPUT_DIR)/cert/ca.csr \
+		-subj "/C=CN/ST=Guangdong/L=Shenzhen/O=miniblog/OU=it/CN=127.0.0.1/emailAddress=alainyan@yahoo.com"
+	@# 3. 使用根私钥签发根证书(CA CRT), 使其自签名, x509用于创建和修改509证书
+	@# in指定输入文件, out指定输出文件, req指定输入文件为证书请求, signkey指定用于自签名的私钥文件
+	@openssl x509 -req -days 365 -in $(OUTPUT_DIR)/cert/ca.csr -signkey $(OUTPUT_DIR)/cert/ca.key -out $(OUTPUT_DIR)/cert/ca.crt
+	@# 4. 生成服务端私钥
+	@openssl genrsa -out $(OUTPUT_DIR)/cert/server.key 2048
+	@# 5. 使用服务端私钥生成服务端的证书签名请求(Server CSR)
+	@# .crt, .cert代表Certificate, crt常见于unix, cer常见于win, .key存放私钥或公钥, .csr代表证书签名请求, 不是证书
+	@openssl req -new -key $(OUTPUT_DIR)/cert/server.key -out $(OUTPUT_DIR)/cert/server.csr \
+		-subj "/C=CN/ST=Guangdong/L=Shenzhen/O=serverdevops/OU=serverit/CN=localhost/emailAddress=alainyan@yahoo.com" \
+		-addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+	@#6. 使用根证书(CA)签发服务端证书(Server CRT)
+	@# CA设置CA文件, 必须为PEM格式(文本格式), CAkey设置CA私钥文件, 必须为PEM格式, CAcreateserial创建序列号文件
+	@openssl x509 -days 365 -sha256 -req -CA $(OUTPUT_DIR)/cert/ca.crt -CAkey $(OUTPUT_DIR)/cert/ca.key \
+		-CAcreateserial -in $(OUTPUT_DIR)/cert/server.csr -out $(OUTPUT_DIR)/cert/server.crt -extensions v3_req \
+		-extfile <(printf "[v3_req]\nsubjectAltName=DNS:localhost,IP:127.0.0.1")

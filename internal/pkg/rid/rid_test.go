@@ -43,16 +43,18 @@ func TestResourceID_New(t *testing.T) {
 }
 
 func BenchmarkResourceID_New(b *testing.B) {
-	// 性能测试
-	b.ResetTimer()
+	// 性能测试, 必须以Benchmark开头, 运行测试函数需要指定参数-test.bench来运行
+	b.ResetTimer() // 重置计时器, 进行一些耗时的准备工作
+	// 测量 userID.New 方法的性能表现
 	for i := 0; i < b.N; i++ {
 		userID := rid.UserID
 		_ = userID.New(uint64(i))
 	}
 }
 
+// 模糊测试, 一种自动化测试技术, 通过不断生成输入数据来测试程序中的漏洞
 func FuzzResourceID_New(f *testing.F) {
-	// 添加预置测试数据
+	// 添加预置测试数据, 使用f.Add方法告诉Fuzzing引擎所需要的数据类型和顺序
 	f.Add(uint64(1))      // 添加一个种子值counter为1
 	f.Add(uint64(123456)) // 添加一个较大的种子值
 
