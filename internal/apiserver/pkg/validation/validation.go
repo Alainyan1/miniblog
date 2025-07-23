@@ -19,23 +19,35 @@ type Validator struct {
 	store store.IStore
 }
 
+// 预编译正则表达式(全局变量)
+var (
+	lengthRegex = regexp.MustCompile(`^.{3,20}$`)                                        // 长度在3到20个字符
+	validRegex  = regexp.MustCompile(`^[A-Za-z0-9_]+$`)                                  // 仅包含字母, 数字和下划线
+	letterRegex = regexp.MustCompile(`[A-Za-z]`)                                         // 至少包含一个字母
+	numberRegex = regexp.MustCompile(`\d`)                                               // 至少包含一个数字
+	emailRegex  = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`) // 邮箱格式
+	phoneRegex  = regexp.MustCompile(`^1[3-9]\d{9}$`)
+)
+
 func New(store store.IStore) *Validator {
 	return &Validator{store: store}
 }
 
 func isValidUsername(username string) bool {
-	var (
-		lengthRegex = `^.{3,20}$`       // 长度在3到20个字符
-		validRegex  = `^[A-Za-z0-9_]+$` // 仅包含字母, 数字和下划线
-	)
 
-	// 校验长度
-	if matched, _ := regexp.MatchString(lengthRegex, username); !matched {
+	// // 校验长度
+	// if matched, _ := regexp.MatchString(lengthRegex, username); !matched {
+	// 	return false
+	// }
+	if !lengthRegex.MatchString(username) {
 		return false
 	}
 
-	// 校验合法性
-	if matched, _ := regexp.MatchString(validRegex, username); !matched {
+	// // 校验合法性
+	// if matched, _ := regexp.MatchString(validRegex, username); !matched {
+	// 	return false
+	// }
+	if !validRegex.MatchString(username) {
 		return false
 	}
 
@@ -43,26 +55,20 @@ func isValidUsername(username string) bool {
 }
 
 func isValidPassword(password string) error {
-	// 不为空
-	if password == "" {
+	switch {
+	// 检查新密码是否为空
+	case password == "":
 		return errno.ErrInvalidArgument.WithMessage("password cannot be empty")
-	}
-
-	// 长度大于6
-	if len(password) < 6 {
+	// 检查新密码的长度要求
+	case len(password) < 6:
 		return errno.ErrInvalidArgument.WithMessage("password must be at least 6 characters long")
-	}
-
-	letterPattern := regexp.MustCompile(`[A-Za-z]`)
-	if !letterPattern.MatchString(password) {
+	// 使用正则表达式检查是否至少包含一个字母
+	case !letterRegex.MatchString(password):
 		return errno.ErrInvalidArgument.WithMessage("password must contain at least one letter")
-	}
-
-	numberPattern := regexp.MustCompile(`\d`)
-	if !numberPattern.MatchString(password) {
+	// 使用正则表达式检查是否至少包含一个数字
+	case !numberRegex.MatchString(password):
 		return errno.ErrInvalidArgument.WithMessage("password must contain at least one number")
 	}
-
 	return nil
 }
 
@@ -74,8 +80,7 @@ func isValidEmail(email string) error {
 	}
 
 	// 使用正则表达式校验电子邮件格式
-	emailPattern := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	if !emailPattern.MatchString(email) {
+	if !emailRegex.MatchString(email) {
 		return errno.ErrInvalidArgument.WithMessage("invalid email format")
 	}
 
@@ -90,8 +95,7 @@ func isValidPhone(phone string) error {
 	}
 
 	// 使用正则表达式校验手机号码格式（假设是中国手机号，11位数字）
-	phonePattern := regexp.MustCompile(`^1[3-9]\d{9}$`)
-	if !phonePattern.MatchString(phone) {
+	if !phoneRegex.MatchString(phone) {
 		return errno.ErrInvalidArgument.WithMessage("invalid phone format")
 	}
 

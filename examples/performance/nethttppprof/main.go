@@ -1,5 +1,6 @@
 package main
 
+// 通过net/http/pprof包采集
 import (
 	"fmt"
 	"log"

@@ -69,7 +69,8 @@ func (v *Validator) ValidateGetPostRequest(ctx context.Context, rq *apiv1.GetPos
 // 对于其他字段, 可以自行实现校验逻辑, 可以根据需求选择哪些使用通用的校验规则, 哪些使用自行实现的校验规则
 func (v *Validator) ValidateListPostRequest(ctx context.Context, rq *apiv1.ListPostRequest) error {
 	if err := validation.Validate(rq.GetTitle(), validation.Length(5, 100), is.URL); err != nil {
-		return errno.ErrInvalidArgument.WithMessage(err.Error())
+		// return errno.ErrInvalidArgument.WithMessage(err.Error())
+		return errno.ErrInvalidArgument.WithMessage("invalid title format")
 	}
 	return genericvalidation.ValidateSelectedFields(rq, v.ValidatePostRules(), "Offset", "Limit")
 }
