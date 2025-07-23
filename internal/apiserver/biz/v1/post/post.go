@@ -93,7 +93,6 @@ func (b *postBiz) Get(ctx context.Context, rq *apiv1.GetPostRequest) (*apiv1.Get
 	whr := where.T(ctx).F("postID", rq.GetPostID())
 
 	postM, err := b.store.Post().Get(ctx, whr)
-
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +104,6 @@ func (b *postBiz) List(ctx context.Context, rq *apiv1.ListPostRequest) (*apiv1.L
 	whr := where.T(ctx).P(int(rq.GetOffset()), int(rq.GetLimit()))
 
 	count, postList, err := b.store.Post().List(ctx, whr)
-
 	if err != nil {
 		return nil, err
 	}

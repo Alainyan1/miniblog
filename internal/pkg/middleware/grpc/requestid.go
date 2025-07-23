@@ -7,7 +7,6 @@ package grpc
 
 import (
 	"context"
-
 	"miniblog/internal/pkg/contextx"
 	"miniblog/internal/pkg/errorsx"
 	"miniblog/internal/pkg/known"
@@ -17,7 +16,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// 一个grpc拦截器, 用于设置请求id, 返回一个UnaryServerInterceptor类型的拦截器函数
+// 一个grpc拦截器, 用于设置请求id, 返回一个UnaryServerInterceptor类型的拦截器函数.
 func RequestIDInterprceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		var requestID string
@@ -53,7 +52,6 @@ func RequestIDInterprceptor() grpc.UnaryServerInterceptor {
 
 		// 继续处理请求
 		res, err := handler(ctx, req)
-
 		// 错误处理, 附加请求id
 		if err != nil {
 			return res, errorsx.FromError(err).WithRequestID(requestID)

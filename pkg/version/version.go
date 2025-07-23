@@ -17,19 +17,17 @@ import (
 // 根据目录规范, 将version包放在pkg目录下
 
 var (
-	// gitVersion 是语义化版本号, 默认值是v0.0.0-master+$Format:%h$
-	// 实际使用中, gitVersion通常会通过 -ldflags参数在编译时赋值为实际版本
+	// 实际使用中, gitVersion通常会通过 -ldflags参数在编译时赋值为实际版本.
 	gitVersion = "v0.0.0-master+$Format:%h$"
-	// buildDate是ISO8601格式的构建时间, 是date -u + '%Y-%m-%dT%H:%M:%SZ' 命令的输出
-	// 实际使用中, gitVersion通常会通过 -ldflags参数在编译时赋值为构建时的时间戳
+	// 实际使用中, gitVersion通常会通过 -ldflags参数在编译时赋值为构建时的时间戳.
 	buildDate = "1970-01-01T00:00:00Z"
-	// gitCommit是git的SHA1值, git rev-prase HEAD 命令的输出
+	// gitCommit是git的SHA1值, git rev-prase HEAD 命令的输出.
 	gitCommit = "$Format:%H$"
-	// gitTreeState代表构建时git仓库的状态, 可能值为clean, dirty
+	// gitTreeState代表构建时git仓库的状态, 可能值为clean, dirty.
 	gitTreeState = ""
 )
 
-// Info包含了版本信息
+// Info包含了版本信息.
 type Info struct {
 	GitVersion   string `json:"gitVersion"`
 	GitCommit    string `json:"gitCommit"`
@@ -40,19 +38,19 @@ type Info struct {
 	Platform     string `json:"platform"`
 }
 
-// String返回友好可读版本信息字符串
+// String返回友好可读版本信息字符串.
 func (info Info) String() string {
 	return info.GitVersion
 }
 
-// ToJSON以json格式返回版本信息
+// ToJSON以json格式返回版本信息.
 func (info Info) ToJSON() string {
 	s, _ := json.Marshal(info)
 
 	return string(s)
 }
 
-// Text将版本信息编码为utf-8格式的文本并返回
+// Text将版本信息编码为utf-8格式的文本并返回.
 func (info Info) Text() string {
 	table := uitable.New()
 	table.RightAlign(0)
@@ -69,7 +67,7 @@ func (info Info) Text() string {
 	return table.String()
 }
 
-// Get返回详尽的代码版本库信息, 用来表明二进制文件由哪个版本的代码构建
+// Get返回详尽的代码版本库信息, 用来表明二进制文件由哪个版本的代码构建.
 func Get() Info {
 	return Info{
 		// 以下变量通常由 -ldflags进行设置

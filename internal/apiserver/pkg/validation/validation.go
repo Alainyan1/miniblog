@@ -11,7 +11,7 @@ import (
 	"regexp"
 )
 
-// 验证逻辑的实现结构体
+// 验证逻辑的实现结构体.
 type Validator struct {
 	// 有些复杂的验证逻辑, 可能需要直接查询数据库
 	// 这里只是一个举例, 如果验证时, 有其他依赖的客户端/服务/资源等
@@ -19,7 +19,7 @@ type Validator struct {
 	store store.IStore
 }
 
-// 预编译正则表达式(全局变量)
+// 预编译正则表达式(全局变量).
 var (
 	lengthRegex = regexp.MustCompile(`^.{3,20}$`)                                        // 长度在3到20个字符
 	validRegex  = regexp.MustCompile(`^[A-Za-z0-9_]+$`)                                  // 仅包含字母, 数字和下划线
@@ -34,7 +34,6 @@ func New(store store.IStore) *Validator {
 }
 
 func isValidUsername(username string) bool {
-
 	// // 校验长度
 	// if matched, _ := regexp.MatchString(lengthRegex, username); !matched {
 	// 	return false

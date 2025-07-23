@@ -14,11 +14,7 @@ import (
 
 // 实现了跨域中间件
 
-// gin中间件, 用于禁止客户端缓存HTTP请求的返回结果, 确保每次请求都重新从服务器获取数据
-// no-cache 表示客户端在再次使用缓存之前, 必须向服务器验证资源是否过期
-// no-store: 更严格, 禁止客户端和中间代理(如 CDN)存储任何响应内容
-// max-age=0: 缓存的最大有效时间为 0 秒, 强制缓存立即过期
-// must-revalidate: 当缓存过期后, 客户端必须重新验证资源
+// must-revalidate: 当缓存过期后, 客户端必须重新验证资源.
 func NoCache(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
 	c.Header("Expires", "Thu, 01 Jan 1970 00:00:00 GMT")
@@ -29,7 +25,7 @@ func NoCache(c *gin.Context) {
 	c.Next()
 }
 
-// gin中间件, 用于处理CORS请求
+// gin中间件, 用于处理CORS请求.
 func Cors(c *gin.Context) {
 	// 处理预检请求
 	if c.Request.Method == http.MethodOptions {
@@ -50,7 +46,7 @@ func Cors(c *gin.Context) {
 	c.Next() // 如果不是预检请求, 调用 c.Next(), 将请求传递给下一个中间件或路由处理程序
 }
 
-// gin中间件, 用于添加安全相关的http头
+// gin中间件, 用于添加安全相关的http头.
 func Secure(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	// 禁止页面被嵌入到 <frame>, <iframe> 或 <object> 中, 防止**点击劫持(Clickjacking)**攻击

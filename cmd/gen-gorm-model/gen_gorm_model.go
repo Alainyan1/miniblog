@@ -5,7 +5,7 @@
 
 package main
 
-// 连接musql数据库, 根据数据库表结构自动生成对应的go结构体(gorm模型), 生成查询接口和相关的curd操作代码
+// 连接musql数据库, 根据数据库表结构自动生成对应的go结构体(gorm模型), 生成查询接口和相关的curd操作代码.
 import (
 	"fmt"
 	"log"
@@ -18,29 +18,29 @@ import (
 	"gorm.io/gorm"
 )
 
-// 帮助文本信息
+// 帮助文本信息.
 const helpText = `Usage: main [flags] arg [arg...]
 This is a pflag example. 
 Flags: 
 `
 
-// 自定义查询接口, 可以为生成的模型添加特定的查询功能
+// 自定义查询接口, 可以为生成的模型添加特定的查询功能.
 type Querier interface {
 	FilterWithNameAndRole(name string) ([]gen.T, error)
 }
 
-// 保存代码生成的配置
+// 保存代码生成的配置.
 type GenerateConfig struct {
-	ModelPackagePath string                 //生成模型的包路径
-	GenerateFunc     func(g *gen.Generator) //具体生成函数
+	ModelPackagePath string                 // 生成模型的包路径
+	GenerateFunc     func(g *gen.Generator) // 具体生成函数
 }
 
-// 预定义生成的配置
+// 预定义生成的配置.
 var generateConfigs = map[string]GenerateConfig{
 	"mb": {ModelPackagePath: "../../internal/apiserver/model", GenerateFunc: GenerateMiniBlogModels},
 }
 
-// 命令行参数
+// 命令行参数.
 var (
 	addr       = pflag.StringP("addr", "a", "127.0.0.1:3306", "MySQL host address.")
 	username   = pflag.StringP("username", "u", "miniblog", "Username to connect to the database.")
@@ -51,10 +51,7 @@ var (
 	help       = pflag.BoolP("help", "h", false, "Show this help message.")
 )
 
-// main函数流程
-// 1. 解析命令行参数: 使用pflag解析用户输入
-// 2. 初始化数据库连接: 连接到指定的MySQL数据库
-// 3. 处理组件: 遍历指定的组件, 为每个组件生成代码
+// 3. 处理组件: 遍历指定的组件, 为每个组件生成代码.
 func main() {
 	// 设置自定义的使用说明函数
 	pflag.Usage = func() {
@@ -81,7 +78,7 @@ func main() {
 	}
 }
 
-// 创建并返回一个数据库连接
+// 创建并返回一个数据库连接.
 func initializeDatabase() (*gorm.DB, error) {
 	// NewMySQL需要传入指针类型
 	dpOptions := &db.MySQLOptions{
@@ -94,7 +91,7 @@ func initializeDatabase() (*gorm.DB, error) {
 	return db.NewMySQL(dpOptions)
 }
 
-// 处理单个组件以生成代码
+// 处理单个组件以生成代码.
 func processComponent(component string, dbInstance *gorm.DB) {
 	config, ok := generateConfigs[component]
 	if !ok {
@@ -119,7 +116,7 @@ func processComponent(component string, dbInstance *gorm.DB) {
 	generator.Execute()
 }
 
-// 确定模型生成的包路径
+// 确定模型生成的包路径.
 func resolveModelPackagePath(defaultPath string) string {
 	// 如果命令行参数中指定了模型包路径, 则使用该路径
 	if *modelPath != "" {
@@ -133,7 +130,7 @@ func resolveModelPackagePath(defaultPath string) string {
 	return absPath
 }
 
-// 初始化并返回一个新的生成器实例
+// 初始化并返回一个新的生成器实例.
 func createGenerator(packagePath string) *gen.Generator {
 	return gen.NewGenerator(gen.Config{
 		Mode:              gen.WithDefaultQuery | gen.WithQueryInterface | gen.WithoutContext, // 使用默认查询模式, 包含查询接口, 不使用上下文
@@ -146,7 +143,7 @@ func createGenerator(packagePath string) *gen.Generator {
 	})
 }
 
-// 设置自定义生成器选项
+// 设置自定义生成器选项.
 func applyGeneratorOptions(g *gen.Generator) {
 	// 为特定字段自定义gorm标签
 	g.WithOpts(
@@ -198,5 +195,4 @@ func GenerateMiniBlogModels(g *gen.Generator) {
 		gen.FieldRename("ptype", "PType"), // 为了符合 Go 命名规范, 将字段名从ptype改为PType
 		gen.FieldIgnore("placeholder"),
 	)
-
 }

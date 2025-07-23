@@ -9,19 +9,18 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"net/http"
-
 	"miniblog/internal/pkg/log"
+	"net/http"
 
 	genericoptions "github.com/onexstack/onexstack/pkg/options"
 )
 
-// 代表有一个http服务器
+// 代表有一个http服务器.
 type HTTPServer struct {
 	srv *http.Server
 }
 
-// 创建一个新的服务器实例
+// 创建一个新的服务器实例.
 func NewHTTPServer(httpOptions *genericoptions.HTTPOptions, tlsOptions *genericoptions.TLSOptions, handler http.Handler) *HTTPServer {
 	var tlsConfig *tls.Config
 	if tlsOptions != nil && tlsOptions.UseTLS {
@@ -36,7 +35,7 @@ func NewHTTPServer(httpOptions *genericoptions.HTTPOptions, tlsOptions *generico
 	}
 }
 
-// 启动服务器
+// 启动服务器.
 func (s *HTTPServer) RunOrDie() {
 	log.Infow("Start to listen the incoming requests", "protocol", protocolName(s.srv), "addr", s.srv.Addr)
 	serveFn := func() error { return s.srv.ListenAndServe() }
@@ -49,7 +48,7 @@ func (s *HTTPServer) RunOrDie() {
 	}
 }
 
-// 优雅关停
+// 优雅关停.
 func (s *HTTPServer) GracefulStop(ctx context.Context) {
 	log.Infow("Gracefully stop HTTP(s) server")
 	// http.Server的shutdown工作流程如下:

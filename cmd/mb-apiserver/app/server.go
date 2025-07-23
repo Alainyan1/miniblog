@@ -16,7 +16,7 @@ import (
 
 var configFile string
 
-// 创建一个 *cobra.Command 对象, 用于启动应用程序
+// 创建一个 *cobra.Command 对象, 用于启动应用程序.
 func NewMiniBlogCommand() *cobra.Command {
 	// 默认命令行选项
 	opts := options.NewServerOptions()
@@ -81,7 +81,7 @@ The project features include:
 	return cmd
 }
 
-// 主运行逻辑, 复制初始化日志, 解析配置, 校验选项并启动服务器
+// 主运行逻辑, 复制初始化日志, 解析配置, 校验选项并启动服务器.
 func run(opts *options.ServerOptions) error {
 	// 如果传入 --version, 则打印版本信息并推出
 	version.PrintAndExitIfRequested()
@@ -118,8 +118,7 @@ func run(opts *options.ServerOptions) error {
 	return server.Run()
 }
 
-// logOptions 从viper中读取日志配置, 构建*log.Options并返回
-// viper.Get<Type> 中key到名字需要使用.分割, 以跟yaml中保持相同的缩进
+// viper.Get<Type> 中key到名字需要使用.分割, 以跟yaml中保持相同的缩进.
 func logOptions() *log.Options {
 	opts := log.NewOptions()
 

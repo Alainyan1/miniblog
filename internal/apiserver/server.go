@@ -14,16 +14,15 @@ import (
 	"miniblog/internal/pkg/contextx"
 	"miniblog/internal/pkg/known"
 	"miniblog/internal/pkg/log"
+	"miniblog/internal/pkg/server"
 	"miniblog/pkg/auth"
 	"miniblog/pkg/token"
 	"os"
 	"os/signal"
-
 	"syscall"
 	"time"
 
 	mw "miniblog/internal/pkg/middleware/gin"
-	"miniblog/internal/pkg/server"
 
 	genericoptions "github.com/onexstack/onexstack/pkg/options"
 	"github.com/onexstack/onexstack/pkg/store/where"
@@ -44,7 +43,7 @@ const (
 
 // 基于初始化配置创建运行时配置
 
-// 存储应用相关配置
+// 存储应用相关配置.
 type Config struct {
 	ServerMode   string
 	JWTKey       string
@@ -78,7 +77,6 @@ type ServerConfig struct {
 
 // NewUnionServer 根据配置创建联合服务器.
 func (cfg *Config) NewUnionServer() (*UnionServer, error) {
-
 	// 注册租户解析函数, 通过上下文获取用户ID, nolint: gocritic告诉静态分析工具(如 golangci-lint)忽略特定代码行的某些检查规则
 	//nolint: gocritic
 	where.RegisterTenant("userID", func(ctx context.Context) string {
@@ -142,13 +140,12 @@ func (s *UnionServer) Run() error {
 	return nil
 }
 
-// 创建一个gorm.DB实例
+// 创建一个gorm.DB实例.
 func (cfg *Config) NewDB() (*gorm.DB, error) {
 	return cfg.MySQLOptions.NewDB()
 }
 
-// 创建一个*ServerConfig实例
-// 后续可以使用依赖注入的方式
+// 后续可以使用依赖注入的方式.
 func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
 	db, err := cfg.NewDB()
 	if err != nil {
@@ -159,6 +156,9 @@ func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
 
 	// 初始化权限认证模块
 	authz, err := auth.NewAuthz(store.DB(context.TODO()))
+	if err != nil {
+		return nil, err
+	}
 
 	return &ServerConfig{
 		cfg:       cfg,

@@ -17,11 +17,11 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// grpc拦截器, 模拟所有请求都通过认证
+// grpc拦截器, 模拟所有请求都通过认证.
 func AuthnBypasswInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// 从请求头获取用户ID
-		userID := "user-000001" //默认用户ID
+		userID := "user-000001" // 默认用户ID
 		// rpc从metadata获取用户id, 类似http中的header?
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			// 获取key为x-user-id的值, x-user-id保存了UserID的值

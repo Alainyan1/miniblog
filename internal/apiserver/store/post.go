@@ -26,10 +26,10 @@ type PostStore interface {
 	PostExpansion
 }
 
-// 自定义帖子操作等附加方法
+// 自定义帖子操作等附加方法.
 type PostExpansion interface{}
 
-// PostStore的接口实现
+// PostStore的接口实现.
 type postStore struct {
 	store *datastore
 }

@@ -6,9 +6,8 @@
 package main
 
 import (
-	"os"
-
 	"miniblog/cmd/mb-apiserver/app"
+	"os"
 
 	// 导入匿名包automaxprocs，可以在程序启动时自动设置 GOMAXPROCS 配置，
 	// 使其与 Linux 容器的 CPU 配额相匹配。
@@ -17,7 +16,7 @@ import (
 	_ "go.uber.org/automaxprocs"
 )
 
-// 程序默认入口
+// 程序默认入口.
 func main() {
 	command := app.NewMiniBlogCommand()
 

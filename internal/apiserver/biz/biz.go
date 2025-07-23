@@ -5,7 +5,7 @@
 
 package biz
 
-// Biz层依赖Store层, 主要用来实现系统中REST资源的各类业务操作, 例如用户资源的增删改查等
+// Biz层依赖Store层, 主要用来实现系统中REST资源的各类业务操作, 例如用户资源的增删改查等.
 import (
 	postv1 "miniblog/internal/apiserver/biz/v1/post"
 	userv1 "miniblog/internal/apiserver/biz/v1/user"
@@ -13,7 +13,7 @@ import (
 	"miniblog/pkg/auth"
 )
 
-// 定义了业务层需要实现的方法
+// 定义了业务层需要实现的方法.
 type IBiz interface {
 	// 获取用户业务接口
 	UserV1() userv1.UserBiz

@@ -22,18 +22,18 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// grpc网关服务器
+// grpc网关服务器.
 type GRPCGatewayServer struct {
 	srv *http.Server
 }
 
-// 创建一个新的grpc网关服务器
+// 创建一个新的grpc网关服务器.
 func NewGRPCGatewayServer(
 	httpOptions *genericoptions.HTTPOptions,
 	grpcOptions *genericoptions.GRPCOptions,
 	tlsOptions *genericoptions.TLSOptions,
-	registerHandler func(mux *runtime.ServeMux, conn *grpc.ClientConn) error) (*GRPCGatewayServer, error) {
-
+	registerHandler func(mux *runtime.ServeMux, conn *grpc.ClientConn) error,
+) (*GRPCGatewayServer, error) {
 	var tlsConfig *tls.Config
 	if tlsOptions != nil && tlsOptions.UseTLS {
 		tlsConfig = tlsOptions.MustTLSConfig()

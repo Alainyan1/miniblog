@@ -14,7 +14,7 @@ import (
 
 // 实现钩子函数, 用于在模型操作前后执行特定逻辑
 
-// 在创建数据库记录前加密明文密码
+// 在创建数据库记录前加密明文密码.
 func (m *UserM) BeforeCreate(tx *gorm.DB) error {
 	var err error
 	m.Password, err = auth.Encrypt(m.Password)
@@ -25,14 +25,14 @@ func (m *UserM) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-// 在创建数据库记录后生成postID
+// 在创建数据库记录后生成postID.
 func (m *PostM) AfterCreate(tx *gorm.DB) error {
 	// 基于数据库生成的自增ID生成一个形如user-uvalgf的唯一id, 并调用tx.Save()方法将ID更新到表记录中
 	m.PostID = rid.PostID.New(uint64(m.ID))
 	return tx.Save(m).Error
 }
 
-// 在创建数据库记录后生成userID
+// 在创建数据库记录后生成userID.
 func (m *UserM) AfterCreate(tx *gorm.DB) error {
 	m.UserID = rid.UserID.New(uint64(m.ID))
 	return tx.Save(m).Error

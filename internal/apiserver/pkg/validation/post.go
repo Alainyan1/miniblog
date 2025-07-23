@@ -63,10 +63,7 @@ func (v *Validator) ValidateGetPostRequest(ctx context.Context, rq *apiv1.GetPos
 	return genericvalidation.ValidateAllFields(rq, v.ValidatePostRules())
 }
 
-// ValidateListPostRequest 校验 ListPostRequest 结构体的有效性.
-// 调用了ValidateSelectedFields函数, 只会校验传入的Offset, Limit
-// 如果指定了不存在的字段, 则会跳过该字段的检验
-// 对于其他字段, 可以自行实现校验逻辑, 可以根据需求选择哪些使用通用的校验规则, 哪些使用自行实现的校验规则
+// 对于其他字段, 可以自行实现校验逻辑, 可以根据需求选择哪些使用通用的校验规则, 哪些使用自行实现的校验规则.
 func (v *Validator) ValidateListPostRequest(ctx context.Context, rq *apiv1.ListPostRequest) error {
 	if err := validation.Validate(rq.GetTitle(), validation.Length(5, 100), is.URL); err != nil {
 		// return errno.ErrInvalidArgument.WithMessage(err.Error())

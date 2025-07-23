@@ -13,7 +13,7 @@ func NewLogger() *Logger {
 	return &Logger{}
 }
 
-// 实现Error方法, 用于记录错误日志
+// 实现Error方法, 用于记录错误日志.
 func (l *Logger) Error(err error, msg string, kvs ...any) {
 	log.Errorw(msg, append(kvs, "err", err)...)
 }

@@ -16,10 +16,10 @@ package known
 // 考虑兼容性这里统一将 Header 设置为小写.
 // 另外, Header 的键以 x- 开头, 说明是自定义 Header.
 const (
-	// 定义上下文中的键, 代表请求id
+	// 定义上下文中的键, 代表请求id.
 	XRequestID = "x-request-id"
 
-	// 定义上下文中的键, 代表请求用户ID, UserID整个用户生命周期唯一
+	// 定义上下文中的键, 代表请求用户ID, UserID整个用户生命周期唯一.
 	XUserID = "x-user-id"
 
 	// XUsername 用来定义上下文的键，代表请求用户名.

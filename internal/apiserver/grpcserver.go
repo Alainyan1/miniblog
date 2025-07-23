@@ -7,7 +7,6 @@ package apiserver
 
 import (
 	"context"
-
 	"miniblog/internal/pkg/server"
 
 	handler "miniblog/internal/apiserver/handler/grpc"
@@ -22,14 +21,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-// 定义一个grpc服务器
+// 定义一个grpc服务器.
 type grpcServer struct {
 	srv server.Server
 	// 优雅关停
 	stop func(context.Context)
 }
 
-// 确保 *grpcServer 实现了 server.Server 接口. 将转换为*grpcSevrer类型的空指针
+// 确保 *grpcServer 实现了 server.Server 接口. 将转换为*grpcSevrer类型的空指针.
 var _ server.Server = (*grpcServer)(nil)
 
 // NewGRPCServerOr 创建并初始化 gRPC 或者 gRPC +  gRPC-Gateway 服务器.
@@ -73,7 +72,6 @@ func (c *ServerConfig) NewGRPCServerOr() (server.Server, error) {
 		},
 		c.cfg.TLSOptions,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -110,17 +108,17 @@ func (c *ServerConfig) NewGRPCServerOr() (server.Server, error) {
 	}, nil
 }
 
-// 启动grpc服务器或http反向代理服务器, 异常时退出
+// 启动grpc服务器或http反向代理服务器, 异常时退出.
 func (s *grpcServer) RunOrDie() {
 	s.srv.RunOrDie()
 }
 
-// 优雅关停
+// 优雅关停.
 func (s *grpcServer) GracefulStop(ctx context.Context) {
 	s.stop(ctx)
 }
 
-// 创建认证白名单匹配器
+// 创建认证白名单匹配器.
 func NewAuthnWhiteListMatcher() selector.Matcher {
 	// 无需认证的方法
 	whitelist := map[string]struct{}{

@@ -8,10 +8,10 @@ package errorsx
 import "net/http"
 
 var (
-	// 代表请求成功
+	// 代表请求成功.
 	OK = &ErrorX{Code: http.StatusOK, Message: ""}
 
-	// 所有未知的服务器端错误
+	// 所有未知的服务器端错误.
 	ErrInternal = &ErrorX{Code: http.StatusNotFound, Reason: "NotFound", Message: "Resource not found."}
 
 	// ErrNotFound 表示资源未找到.

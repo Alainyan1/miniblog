@@ -20,7 +20,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 )
 
-// token的配置选项
+// token的配置选项.
 type Config struct {
 	// 用于签发和解析token的密钥
 	key string
@@ -31,12 +31,12 @@ type Config struct {
 }
 
 var (
-	// 默认值
+	// 默认值.
 	config = Config{"Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5", "identityKey", 2 * time.Hour}
 	once   sync.Once
 )
 
-// 设置包级别的配置config, config会用于本包后面的token签发和解析
+// 设置包级别的配置config, config会用于本包后面的token签发和解析.
 func Init(key string, identityKey string, expiration time.Duration) {
 	once.Do(func() {
 		if key != "" {
@@ -51,8 +51,7 @@ func Init(key string, identityKey string, expiration time.Duration) {
 	})
 }
 
-// Parse函数用于解析JWT字符串并提取用户身份
-// 使用指定密钥key解析token, 解析成功返回token上下文, 否则报错
+// 使用指定密钥key解析token, 解析成功返回token上下文, 否则报错.
 func Parse(tokenString string, key string) (string, error) {
 	// 解析token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -62,7 +61,6 @@ func Parse(tokenString string, key string) (string, error) {
 		}
 		return []byte(key), nil
 	})
-
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +82,7 @@ func Parse(tokenString string, key string) (string, error) {
 	return identityKey, nil
 }
 
-// 从请求中获取JWT, 将其传递给Parse函数来解析
+// 从请求中获取JWT, 将其传递给Parse函数来解析.
 func ParseRequest(ctx context.Context) (string, error) {
 	var (
 		token string

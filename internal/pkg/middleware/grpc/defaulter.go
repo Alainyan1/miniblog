@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// 对请求进行默认值设置
+// 对请求进行默认值设置.
 func DefaultInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// 调用Default方法, 若存在

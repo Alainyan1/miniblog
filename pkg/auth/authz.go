@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	// 默认的cabin 访问控制模型
+	// 默认的cabin 访问控制模型.
 	defaultAclModel = `[request_definition]
 r = sub, obj, act
 
@@ -27,21 +27,21 @@ e = !some(where (p.eft == deny))
 m = g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && r.act == p.act`
 )
 
-// 授权器, 提供授权功能
+// 授权器, 提供授权功能.
 type Authz struct {
 	*casbin.SyncedEnforcer // casbin的同步授权器
 }
 
-// 函数选项类型, 用于自定义NewAuthz的行为
+// 函数选项类型, 用于自定义NewAuthz的行为.
 type Option func(*authzConfig)
 
-// 授权器的配置结构
+// 授权器的配置结构.
 type authzConfig struct {
 	aclModel           string        // casbin的模型字符串
 	autoLoadPolicyTime time.Duration // 自动加载策略的时间间隔
 }
 
-// 返回一个默认配置
+// 返回一个默认配置.
 func defaultAuthzConfig() *authzConfig {
 	return &authzConfig{
 		// 默认使用内置的acl模型
@@ -51,7 +51,7 @@ func defaultAuthzConfig() *authzConfig {
 	}
 }
 
-// 允许通过选项自定义ACL模型
+// 允许通过选项自定义ACL模型.
 func DefaultOptions() []Option {
 	return []Option{
 		// 使用默认的ACL模型
@@ -75,7 +75,7 @@ func WithAutoLoadPolicyTime(interval time.Duration) Option {
 	}
 }
 
-// 创建一个使用casbin完成授权的授权器, 通过函数选项模式支持自定义配置
+// 创建一个使用casbin完成授权的授权器, 通过函数选项模式支持自定义配置.
 func NewAuthz(db *gorm.DB, opts ...Option) (*Authz, error) {
 	// 初始化默认配置
 	cfg := defaultAuthzConfig()
@@ -112,7 +112,7 @@ func NewAuthz(db *gorm.DB, opts ...Option) (*Authz, error) {
 	return &Authz{enforcer}, nil
 }
 
-// 用于进行授权
+// 用于进行授权.
 func (a *Authz) Authorize(sub, obj, act string) (bool, error) {
 	// 调用 Enforce 方法进行授权检查某个主体sub是否可以对某个资源obj进行指定操作act
 	return a.Enforce(sub, obj, act)

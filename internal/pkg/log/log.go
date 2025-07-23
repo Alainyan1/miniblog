@@ -19,7 +19,7 @@ import (
 // 因为该包封装了一些定制化的逻辑, 不适合对外暴露, 不适合放在/pkg目录下
 // 但日志包又是项目内的共享包, 所以存放在internal/pkg下
 
-// 通常将日志接口命名为Logger
+// 通常将日志接口命名为Logger.
 type Logger interface {
 	// 记录调试级别的日志, 通常用于开发阶段, 包含详细的调试信息
 	Debugw(msg string, kvs ...any)
@@ -43,18 +43,12 @@ type Logger interface {
 	Sync()
 }
 
-// 是Logger接口的具体实现, 底层封装了zap.Logger
-// 首字母小写, 不可导出类型, 因为在使用日志包是不需要关注具体实现细节, 只需要调用方法
-// 定义为不可导出类型, 有利于日志类型的封装和维护, 屏蔽实现细节
+// 定义为不可导出类型, 有利于日志类型的封装和维护, 屏蔽实现细节.
 type zapLogger struct {
 	z *zap.Logger
 }
 
-// 确保*zapLogger实现了Logger接口
-// 若*zap未实现Logger接口, 代码会在编译阶段报错
-// var _ 表示声明一个匿名变量, 用于站位, 不实际使用这个变量
-// (*zapLogger)(nil) 是将 nil 转换为 *zapLogger 类型, 表示一个指向 zapLogger 结构体的空指针
-// 这是一个类型断言的语法, 用于告诉编译器检查 *zapLogger 类型是否满足某个条件(在这里是是否实现 Logger 接口)
+// 这是一个类型断言的语法, 用于告诉编译器检查 *zapLogger 类型是否满足某个条件(在这里是是否实现 Logger 接口).
 var _ Logger = (*zapLogger)(nil)
 
 var (
@@ -63,7 +57,7 @@ var (
 	std = New(NewOptions())
 )
 
-// 初始化全局的日志对象
+// 初始化全局的日志对象.
 func Init(opts *Options) {
 	// 因为会给全局变量std赋值, 对std变量加锁
 	mu.Lock()
@@ -76,8 +70,7 @@ func Init(opts *Options) {
 // 全局对象便于通过类似log.Infow()方式直接调用, 局部对象方便传入不同参数以创建自定义的Logger
 // 所以需要实现New和Init两种初始化参数
 
-// New函数根据提供的Options参数(日志配置项)创建一个自定义的zap Logger对象
-// 如果Options参数为空, 则会使用默认的Options配置
+// 如果Options参数为空, 则会使用默认的Options配置.
 func New(opts *Options) *zapLogger {
 	if opts == nil {
 		opts = NewOptions()
@@ -144,7 +137,7 @@ func New(opts *Options) *zapLogger {
 // 这个方法允许 zapLogger 在未来添加自定义逻辑(例如附加默认字段, 过滤日志等)
 // 方便为不同模块提供独立的日志配置
 
-// 调用的是底层zap.Logger的Sync方法, 将缓存中的日志刷新到磁盘文件中, 主程序需要在推出前调用Sync
+// 调用的是底层zap.Logger的Sync方法, 将缓存中的日志刷新到磁盘文件中, 主程序需要在推出前调用Sync.
 func Sync() {
 	std.Sync()
 }
@@ -153,13 +146,12 @@ func (l *zapLogger) Sync() {
 	_ = l.z.Sync()
 }
 
-// 包级别的函数
-// 全局Debugw函数, 提供一个简化的全局接口, 方便在代码中记录debug级别的日志, 而无需直接访问底层的zap日志记录器
+// 全局Debugw函数, 提供一个简化的全局接口, 方便在代码中记录debug级别的日志, 而无需直接访问底层的zap日志记录器.
 func Debugw(msg string, kvs ...any) {
 	std.Debugw(msg, kvs...)
 }
 
-// Sugar() 是 zap 提供的一个更简洁的 API, 允许使用变长参数(如键值对)来记录结构化日志, 而无需手动构造 zap.Field
+// Sugar() 是 zap 提供的一个更简洁的 API, 允许使用变长参数(如键值对)来记录结构化日志, 而无需手动构造 zap.Field.
 func (l *zapLogger) Debugw(msg string, kvs ...any) {
 	l.z.Sugar().Debugw(msg, kvs...)
 }
@@ -204,12 +196,12 @@ func (l *zapLogger) Fatalw(msg string, kvs ...any) {
 	l.z.Sugar().Fatalw(msg, kvs...)
 }
 
-// W解析传入的context, 尝试提取关注的键值, 并添加到日志中
+// W解析传入的context, 尝试提取关注的键值, 并添加到日志中.
 func W(ctx context.Context) Logger {
 	return std.W(ctx)
 }
 
-// W是WithContext的简称, 缩短函数名可以减小日志打印代码行的宽度, 减小日志行代码的折行概率
+// W是WithContext的简称, 缩短函数名可以减小日志打印代码行的宽度, 减小日志行代码的折行概率.
 func (l *zapLogger) W(ctx context.Context) Logger {
 	lc := l.clone()
 
@@ -229,8 +221,7 @@ func (l *zapLogger) W(ctx context.Context) Logger {
 	return lc
 }
 
-// 深拷贝zapLogger
-// 由于log包会被多个请求并发调用, 为了防止请求ID被污染, 每个请求都会对log包深拷贝一个*zapLogger对象, 然后再添加请求id
+// 由于log包会被多个请求并发调用, 为了防止请求ID被污染, 每个请求都会对log包深拷贝一个*zapLogger对象, 然后再添加请求id.
 func (l *zapLogger) clone() *zapLogger {
 	newLogger := *l
 	return &newLogger

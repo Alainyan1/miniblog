@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// nolint
 type ErrorX struct {
 	// Code表示错误的http状态码, 用于与客户端进行交互时标识的错误类型
 	Code int `json:"code,omitempty"`
@@ -29,7 +30,7 @@ type ErrorX struct {
 	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
-// 创建一个新错误
+// 创建一个新错误.
 func New(code int, reason string, format string, args ...any) *ErrorX {
 	return &ErrorX{
 		Code:    code,
@@ -38,24 +39,24 @@ func New(code int, reason string, format string, args ...any) *ErrorX {
 	}
 }
 
-// 实现error接口中的Error方法
+// 实现error接口中的Error方法.
 func (err *ErrorX) Error() string {
 	return fmt.Sprintf("error: code = %d reason = %s message = %s metadata = %v", err.Code, err.Reason, err.Message, err.Metadata)
 }
 
-// 设置错误的Message字段
+// 设置错误的Message字段.
 func (err *ErrorX) WithMessage(format string, args ...any) *ErrorX {
 	err.Message = fmt.Sprintf(format, args...)
 	return err
 }
 
-// 设置原数据
+// 设置原数据.
 func (err *ErrorX) WithMetadata(md map[string]string) *ErrorX {
 	err.Metadata = md
 	return err
 }
 
-// 使用kv对设置原数据
+// 使用kv对设置原数据.
 func (err *ErrorX) KV(kvs ...string) *ErrorX {
 	// 初始化原数据
 	if err.Metadata == nil {
@@ -71,21 +72,19 @@ func (err *ErrorX) KV(kvs ...string) *ErrorX {
 	return err
 }
 
-// 返回grpc状态表示
+// 返回grpc状态表示.
 func (err *ErrorX) GRPCStatus() *status.Status {
 	details := errdetails.ErrorInfo{Reason: err.Reason, Metadata: err.Metadata}
 	s, _ := status.New(httpstatus.ToGRPCCode(err.Code), err.Message).WithDetails(&details)
 	return s
 }
 
-// 设置请求id
+// 设置请求id.
 func (err *ErrorX) WithRequestID(requestID string) *ErrorX {
 	return err.KV("X-Request-ID", requestID)
 }
 
-// 判断当前错误是否与目标错误匹配
-// 会递归遍历错误链, 比较ErrorX实例的Code和Reason字段
-// 如果Code和Reason都相等, 返回true, 否则返回false
+// 如果Code和Reason都相等, 返回true, 否则返回false.
 func (err *ErrorX) Is(target error) bool {
 	if errx := new(ErrorX); errors.As(target, &errx) {
 		return errx.Code == err.Code && errx.Reason == err.Reason
@@ -94,7 +93,7 @@ func (err *ErrorX) Is(target error) bool {
 	return false
 }
 
-// 返回错误的http代码
+// 返回错误的http代码.
 func Code(err error) int {
 	if err == nil {
 		return http.StatusOK
@@ -111,7 +110,7 @@ func Reason(err error) string {
 	return FromError(err).Reason
 }
 
-// 将一个通用的error转为自定义的 *ErrorX类型
+// 将一个通用的error转为自定义的 *ErrorX类型.
 func FromError(err error) *ErrorX {
 	if err == nil {
 		return nil
@@ -137,8 +136,8 @@ func FromError(err error) *ErrorX {
 	// 遍历 gRPC 错误详情中的所有附加信息（Details）.
 	for _, detail := range gs.Details() {
 		if typed, ok := detail.(*errdetails.ErrorInfo); ok {
-			ret.Reason = typed.Reason
-			return ret.WithMetadata(typed.Metadata)
+			ret.Reason = typed.GetReason()
+			return ret.WithMetadata(typed.GetMetadata())
 		}
 	}
 

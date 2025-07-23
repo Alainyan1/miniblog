@@ -16,10 +16,10 @@ import (
 )
 
 const (
-	// 服务配置的默认目录
+	// 服务配置的默认目录.
 	defaultHomeDir = ".miniblog"
 
-	// 默认配置文件名
+	// 默认配置文件名.
 	defaultConfigName = "mb-apiserver.yaml"
 )
 
@@ -71,7 +71,7 @@ func filePath() string {
 	return ""
 }
 
-// 返回默认配置的文件搜索目录
+// 返回默认配置的文件搜索目录.
 func searchDirs() []string {
 	// 用户主目录
 	homeDir, err := os.UserHomeDir()

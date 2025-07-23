@@ -16,10 +16,10 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	"miniblog/internal/apiserver" //控制面依赖数据面
+	"miniblog/internal/apiserver" // 控制面依赖数据面
 )
 
-// 支持服务器模式集合
+// 支持服务器模式集合.
 var availableServerModes = sets.New(
 	// "grpc",
 	// "grpc-gateway",
@@ -29,7 +29,7 @@ var availableServerModes = sets.New(
 	apiserver.GRPCGatewayServerMode,
 )
 
-// 服务器配置选项
+// 服务器配置选项.
 type ServerOptions struct {
 	// ServerMode定义服务器模式: gRPC, Gin HTTP, HTTP Reverse Proxy
 	ServerMode string `json:"server-mode" mapstructure:"server-mode"`
@@ -37,7 +37,7 @@ type ServerOptions struct {
 	// JWTKey定义JWT密钥
 	JWTKey string `json:"jwt-key" mapstructure:"jwt-key"`
 
-	//Expiration定义JWT token过期时间
+	// Expiration定义JWT token过期时间
 	Expiration time.Duration `json:"expiration" mapstructure:"expiration"`
 
 	// HTTPOptions包含http配置选项
@@ -53,7 +53,7 @@ type ServerOptions struct {
 	TLSOptions *genericoptions.TLSOptions `json:"tls" mapstructure:"tls"`
 }
 
-// 创建带有默认值的ServerOptions实例
+// 创建带有默认值的ServerOptions实例.
 func NewServerOptions() *ServerOptions {
 	opts := &ServerOptions{
 		ServerMode:   apiserver.GRPCGatewayServerMode,
@@ -70,10 +70,7 @@ func NewServerOptions() *ServerOptions {
 	return opts
 }
 
-// AddFlags 将 ServerOptions 的选项绑定到命令行标志.
-// 通过使用 pflag 包，可以实现从命令行中解析这些选项的功能.
-// 将命令行选项--server-mode, --jwt-key, --expiration绑定到ServerOptions中的相关字段
-// 从而支持通过命令行选项来给ServerOption结构体中的字段赋值
+// 从而支持通过命令行选项来给ServerOption结构体中的字段赋值.
 func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.ServerMode, "server-mode", o.ServerMode, fmt.Sprintf("Server mode, available options: %v", availableServerModes.UnsortedList()))
 	fs.StringVar(&o.JWTKey, "jwt-key", o.JWTKey, "JWT signing key. Must be at least 6 characters long.")
@@ -86,16 +83,16 @@ func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.MySQLOptions.AddFlags(fs)
 }
 
-// 检验ServerOptions中的选项是否合法
+// 检验ServerOptions中的选项是否合法.
 func (o *ServerOptions) Validate() error {
 	errs := []error{}
 
-	//校验ServerMode是否有效
+	// 校验ServerMode是否有效
 	if !availableServerModes.Has(o.ServerMode) {
 		errs = append(errs, fmt.Errorf("invalid server mode: must be one of %v", availableServerModes.UnsortedList()))
 	}
 
-	//校验JWTKey长度
+	// 校验JWTKey长度
 	if len(o.JWTKey) < 6 {
 		errs = append(errs, errors.New("JWTKey must be at least 6 characters long"))
 	}
@@ -110,11 +107,11 @@ func (o *ServerOptions) Validate() error {
 		errs = append(errs, o.GRPCOptions.Validate()...)
 	}
 
-	//合并错误并返回
+	// 合并错误并返回
 	return utilerrors.NewAggregate(errs)
 }
 
-// Config方法基于ServerOptions创建新的apiserver.Config
+// Config方法基于ServerOptions创建新的apiserver.Config.
 func (o *ServerOptions) Config() (*apiserver.Config, error) {
 	return &apiserver.Config{
 		ServerMode:   o.ServerMode,

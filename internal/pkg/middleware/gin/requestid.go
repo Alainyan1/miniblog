@@ -15,7 +15,7 @@ import (
 
 // 实现gin请求的中间件
 
-// gin中间件, 用于在每个http请求的上下文和响应中注入'x-request-id'键值对
+// gin中间件, 用于在每个http请求的上下文和响应中注入'x-request-id'键值对.
 func RequestIDMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取`x-request-id`, 若不存在, 生成新的uuid

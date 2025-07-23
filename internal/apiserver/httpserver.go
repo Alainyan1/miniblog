@@ -21,10 +21,10 @@ type ginServer struct {
 	srv server.Server
 }
 
-// 确保实现server.Server接口
+// 确保实现server.Server接口.
 var _ server.Server = (*ginServer)(nil)
 
-// 初始化一个新的Gin服务器实例
+// 初始化一个新的Gin服务器实例.
 func (c *ServerConfig) NewGinServer() server.Server {
 	// 创建gin引擎
 	engine := gin.New()
@@ -39,7 +39,7 @@ func (c *ServerConfig) NewGinServer() server.Server {
 	return &ginServer{srv: httpsrv}
 }
 
-// 注册API路由, 路由的路径和http方法遵守REST规范
+// 注册API路由, 路由的路径和http方法遵守REST规范.
 func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) {
 	// 注册业务无关的API接口, 例如版本信息等
 	InstallGenericAPI(engine)
@@ -84,7 +84,7 @@ func (c *ServerConfig) InstallRESTAPI(engine *gin.Engine) {
 	}
 }
 
-// 注册业务无关的路由
+// 注册业务无关的路由.
 func InstallGenericAPI(engine *gin.Engine) {
 	// 注册pprof路由, 用来提供性能调试和优化的API接口
 	pprof.Register(engine)

@@ -7,7 +7,7 @@ package log
 
 import "go.uber.org/zap/zapcore"
 
-// 日志配置的选项结构体, 通过该结构体, 可以自定义日志的输出格式, 级别以及其他相关配置
+// 日志配置的选项结构体, 通过该结构体, 可以自定义日志的输出格式, 级别以及其他相关配置.
 type Options struct {
 	// DisableCaller 指定是否禁用 caller 信息
 	// 如果设置为 false(默认值),日志中会显示调用日志所在的文件名和行号,

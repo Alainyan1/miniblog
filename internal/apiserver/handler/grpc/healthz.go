@@ -8,7 +8,6 @@ package grpc
 import (
 	"context"
 	"miniblog/internal/pkg/log"
-
 	"time"
 
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -16,7 +15,7 @@ import (
 	apiv1 "miniblog/pkg/api/apiserver/v1"
 )
 
-// 健康服务检查
+// 健康服务检查.
 func (h *Handler) Healthz(ctx context.Context, rp *emptypb.Empty) (*apiv1.HealthzResponse, error) {
 	log.W(ctx).Infow("Healthz handler is called", "method", "Healthz", "status", "healthy")
 	return &apiv1.HealthzResponse{

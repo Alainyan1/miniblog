@@ -8,6 +8,7 @@ package user
 import (
 	"context"
 	"miniblog/internal/apiserver/model"
+	"miniblog/internal/apiserver/pkg/conversion"
 	"miniblog/internal/apiserver/store"
 	"miniblog/internal/pkg/contextx"
 	"miniblog/internal/pkg/errno"
@@ -18,8 +19,6 @@ import (
 	"miniblog/pkg/token"
 	"sync"
 	"time"
-
-	"miniblog/internal/apiserver/pkg/conversion"
 
 	"github.com/jinzhu/copier"
 	"github.com/onexstack/onexstack/pkg/store/where"
@@ -37,7 +36,7 @@ type UserBiz interface {
 	UserExpansion
 }
 
-// 扩展接口实现了用户登录, Token刷新, 密码修改和差性能示例方法
+// 扩展接口实现了用户登录, Token刷新, 密码修改和差性能示例方法.
 type UserExpansion interface {
 	Login(ctx context.Context, rq *apiv1.LoginRequest) (*apiv1.LoginResponse, error)
 	RefreshToken(ctx context.Context, rq *apiv1.RefreshTokenRequest) (*apiv1.RefreshTokenResponse, error)
@@ -61,7 +60,6 @@ func (b *userBiz) Login(ctx context.Context, rq *apiv1.LoginRequest) (*apiv1.Log
 	whr := where.F("username", rq.GetUsername())
 
 	userM, err := b.store.User().Get(ctx, whr)
-
 	if err != nil {
 		return nil, errno.ErrUserNotFound
 	}
@@ -82,21 +80,18 @@ func (b *userBiz) Login(ctx context.Context, rq *apiv1.LoginRequest) (*apiv1.Log
 	return &apiv1.LoginResponse{Token: tokenStr, ExpireAt: timestamppb.New(expireAt)}, nil
 }
 
-// 刷新用户的身份验证令牌
+// 刷新用户的身份验证令牌.
 func (b *userBiz) RefreshToken(ctx context.Context, rq *apiv1.RefreshTokenRequest) (*apiv1.RefreshTokenResponse, error) {
 	// TODO: 实现Token签发逻辑
 	return &apiv1.RefreshTokenResponse{Token: "<placeholder>", ExpireAt: timestamppb.New(time.Now().Add(2 * time.Hour))}, nil
 }
 
-// 修改用户密码
-// userM结构体实现了BeforeCreate的钩子, 在用户创建记录前, 会将明文密码加密后保存
-// 更新用户时, 不会调用BeforeUpdate钩子, 因此需要在修改密码时手动加密新密码
+// 更新用户时, 不会调用BeforeUpdate钩子, 因此需要在修改密码时手动加密新密码.
 func (b *userBiz) ChangePassword(ctx context.Context, rq *apiv1.ChangePasswordRequest) (*apiv1.ChangePasswordResponse, error) {
 	// where.T方法用于构造查询条件
 	// T函数自动为查询添加租户的隔离条件
 	// ???一个云端CRM(客户关系管理)系统可能为多个公司(租户)提供服务, 每个租户只能访问自己的客户数据
 	userM, err := b.store.User().Get(ctx, where.T(ctx))
-
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +155,6 @@ func (b *userBiz) Update(ctx context.Context, rq *apiv1.UpdateUserRequest) (*api
 	}
 
 	return &apiv1.UpdateUserResponse{}, nil
-
 }
 
 func (b *userBiz) Delete(ctx context.Context, rq *apiv1.DeleteUserRequest) (*apiv1.DeleteUserResponse, error) {

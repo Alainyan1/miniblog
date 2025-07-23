@@ -16,9 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// 接口方法分为两类:
-// 1. 基础的CRUD操作: Create, Update, Delete, Get, List
-// 2. 扩展方法: UserExpansion, 用于添加特定的业务逻辑方法
+// 2. 扩展方法: UserExpansion, 用于添加特定的业务逻辑方法.
 type UserStore interface {
 	Create(ctx context.Context, obj *model.UserM) error
 	Update(ctx context.Context, obj *model.UserM) error
@@ -29,7 +27,7 @@ type UserStore interface {
 	UserExpansion
 }
 
-// 用户操作的附加方法
+// 用户操作的附加方法.
 type UserExpansion interface{}
 
 type userStore struct {
@@ -84,6 +82,7 @@ func (s *userStore) Get(ctx context.Context, opts *where.Options) (*model.UserM,
 	return &obj, nil
 }
 
+// nolint: nonamedreturns
 func (s *userStore) List(ctx context.Context, opts *where.Options) (count int64, ret []*model.UserM, err error) {
 	err = s.store.DB(ctx, opts).Order("id desc").Find(&ret).Offset(-1).Limit(-1).Count(&count).Error
 	if err != nil {

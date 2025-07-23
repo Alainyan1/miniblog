@@ -11,12 +11,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-// 用于自定义验证的接口
+// 用于自定义验证的接口.
 type RequestValidator interface {
 	Validate(ctx context.Context, rq any) error
 }
 
-// grpc拦截器用于对请求进行验证
+// grpc拦截器用于对请求进行验证.
 func ValidatorInterceptor(validator RequestValidator) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, rq any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// 调用自定义验证方法
