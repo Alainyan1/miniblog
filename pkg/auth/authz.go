@@ -6,6 +6,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	adapter "github.com/casbin/gorm-adapter/v3"
+	"github.com/google/wire"
 	"gorm.io/gorm"
 )
 
@@ -40,6 +41,10 @@ type authzConfig struct {
 	aclModel           string        // casbin的模型字符串
 	autoLoadPolicyTime time.Duration // 自动加载策略的时间间隔
 }
+
+// ProviderSet 是一个 Wire 的 Provider 集合, 用于声明依赖注入的规则
+// 包含 NewAuthz 构造函数，用于生成 Authz 实例。
+var ProviderSet = wire.NewSet(NewAuthz, DefaultOptions)
 
 // 返回一个默认配置.
 func defaultAuthzConfig() *authzConfig {
