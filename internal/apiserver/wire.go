@@ -1,3 +1,8 @@
+// Copyright 2024 alainyan <alainyan@yahoo.com>. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file. The original repo for
+// this file is https://github.com/Alainyan1/miniblog.
+
 //go:build wireinject
 // +build wireinject
 
@@ -9,7 +14,8 @@ import (
 	"miniblog/internal/apiserver/store"
 	ginmw "miniblog/internal/pkg/middleware/gin"
 	"miniblog/internal/pkg/server"
-	"miniblog/pkg/auth"
+
+	"github.com/onexstack/onexstack/pkg/authz"
 
 	"github.com/google/wire"
 )
@@ -27,7 +33,7 @@ func InitializeWebServer(*Config) (server.Server, error) {
 			wire.Struct(new(UserRetriever), "*"),
 			wire.Bind(new(ginmw.UserRetriever), new(*UserRetriever)),
 		),
-		auth.ProviderSet,
+		authz.ProviderSet,
 	)
 	return nil, nil
 }

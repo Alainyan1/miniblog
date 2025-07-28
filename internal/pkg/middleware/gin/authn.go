@@ -11,7 +11,8 @@ import (
 	"miniblog/internal/pkg/contextx"
 	"miniblog/internal/pkg/errno"
 	"miniblog/internal/pkg/log"
-	"miniblog/pkg/token"
+
+	"github.com/onexstack/onexstack/pkg/token"
 
 	"github.com/gin-gonic/gin"
 	"github.com/onexstack/onexstack/pkg/core"

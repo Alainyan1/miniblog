@@ -26,7 +26,7 @@ COVERAGE := 1
 # 定义版本相关变量
 # 指定应用使用的version包, 会通过 `-ldflags -X` 向该包中指定的变量注入值
 # 与go.mod文件中的module路径一致
-VERSION_PACKAGE=miniblog/pkg/version
+VERSION_PACKAGE=github.com/onexstack/onexstack/pkg/version
 # 定义VERSION语义化版本号
 ifeq ($(origin VERSION), undefined)
   # 如果VERSION未定义, 则使用git命令获取版本号
@@ -59,7 +59,7 @@ GO_LDFLAGS += \
 # Makefile all 伪目标, 执行`make`时默认执行all伪目标
 # 该目标依赖于tidy format build add-copyright, 依次执行
 .PHONY: all
-all: tidy format lint build cover add-copyright
+all: tidy format build add-copyright
 
 # =============================
 # 其他伪目标

@@ -10,7 +10,8 @@ import (
 	postv1 "miniblog/internal/apiserver/biz/v1/post"
 	userv1 "miniblog/internal/apiserver/biz/v1/user"
 	"miniblog/internal/apiserver/store"
-	"miniblog/pkg/auth"
+
+	"github.com/onexstack/onexstack/pkg/authz"
 
 	"github.com/google/wire"
 )
@@ -31,12 +32,12 @@ type IBiz interface {
 
 type biz struct {
 	store store.IStore
-	authz *auth.Authz
+	authz *authz.Authz
 }
 
 var _ IBiz = (*biz)(nil)
 
-func NewBiz(store store.IStore, authz *auth.Authz) *biz {
+func NewBiz(store store.IStore, authz *authz.Authz) *biz {
 	return &biz{store: store, authz: authz}
 }
 

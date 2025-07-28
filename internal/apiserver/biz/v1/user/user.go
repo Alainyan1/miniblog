@@ -15,10 +15,12 @@ import (
 	"miniblog/internal/pkg/known"
 	"miniblog/internal/pkg/log"
 	apiv1 "miniblog/pkg/api/apiserver/v1"
-	"miniblog/pkg/auth"
 	"miniblog/pkg/token"
 	"sync"
 	"time"
+
+	"github.com/onexstack/onexstack/pkg/authn"
+	"github.com/onexstack/onexstack/pkg/authz"
 
 	"github.com/jinzhu/copier"
 	"github.com/onexstack/onexstack/pkg/store/where"
@@ -46,12 +48,12 @@ type UserExpansion interface {
 
 type userBiz struct {
 	store store.IStore
-	authz *auth.Authz
+	authz *authz.Authz
 }
 
 var _ UserBiz = (*userBiz)(nil)
 
-func New(store store.IStore, authz *auth.Authz) *userBiz {
+func New(store store.IStore, authz *authz.Authz) *userBiz {
 	return &userBiz{store: store, authz: authz}
 }
 
@@ -66,7 +68,7 @@ func (b *userBiz) Login(ctx context.Context, rq *apiv1.LoginRequest) (*apiv1.Log
 
 	// 对比传入的明文密码和数据库中已加密过的密码是否匹配
 	// auth.Compare会将传入的明文密码加密然后和数据库中的密码对比
-	if err := auth.Compare(userM.Password, rq.GetPassword()); err != nil {
+	if err := authn.Compare(userM.Password, rq.GetPassword()); err != nil {
 		log.W(ctx).Errorw("Failed to compare password", "err", err)
 		return nil, errno.ErrPasswordInvalid
 	}
@@ -97,13 +99,13 @@ func (b *userBiz) ChangePassword(ctx context.Context, rq *apiv1.ChangePasswordRe
 	}
 
 	// 验证旧密码是否正确
-	if err := auth.Compare(userM.Password, rq.GetOldPassword()); err != nil {
+	if err := authn.Compare(userM.Password, rq.GetOldPassword()); err != nil {
 		log.W(ctx).Errorw("Failed to compare password", "err", err)
 		return nil, errno.ErrPasswordInvalid
 	}
 
 	// 如果旧密码验证通过, 则加密新密码
-	userM.Password, _ = auth.Encrypt(rq.GetNewPassword())
+	userM.Password, _ = authn.Encrypt(rq.GetNewPassword())
 	if err := b.store.User().Update(ctx, userM); err != nil {
 		return nil, err
 	}

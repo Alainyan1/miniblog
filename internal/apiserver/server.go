@@ -15,12 +15,13 @@ import (
 	"miniblog/internal/pkg/known"
 	"miniblog/internal/pkg/log"
 	"miniblog/internal/pkg/server"
-	"miniblog/pkg/auth"
 	"miniblog/pkg/token"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/onexstack/onexstack/pkg/authz"
 
 	mw "miniblog/internal/pkg/middleware/gin"
 
@@ -72,7 +73,7 @@ type ServerConfig struct {
 	biz       biz.IBiz
 	val       *validation.Validator
 	retriever mw.UserRetriever
-	authz     *auth.Authz
+	authz     *authz.Authz
 }
 
 // NewUnionServer 根据配置创建联合服务器.
@@ -148,28 +149,28 @@ func (cfg *Config) NewDB() (*gorm.DB, error) {
 }
 
 // 后续可以使用依赖注入的方式.
-func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
-	db, err := cfg.NewDB()
-	if err != nil {
-		return nil, err
-	}
+// func (cfg *Config) NewServerConfig() (*ServerConfig, error) {
+// 	db, err := cfg.NewDB()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	store := store.NewStore(db)
+// 	store := store.NewStore(db)
 
-	// 初始化权限认证模块
-	authz, err := auth.NewAuthz(store.DB(context.TODO()))
-	if err != nil {
-		return nil, err
-	}
+// 	// 初始化权限认证模块
+// 	authz, err := auth.NewAuthz(store.DB(context.TODO()))
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &ServerConfig{
-		cfg:       cfg,
-		biz:       biz.NewBiz(store, authz),
-		val:       validation.New(store),
-		retriever: &UserRetriever{store: store},
-		authz:     authz,
-	}, nil
-}
+// 	return &ServerConfig{
+// 		cfg:       cfg,
+// 		biz:       biz.NewBiz(store, authz),
+// 		val:       validation.New(store),
+// 		retriever: &UserRetriever{store: store},
+// 		authz:     authz,
+// 	}, nil
+// }
 
 // UserRetriever 定义一个用户数据获取器. 用来获取用户信息.
 type UserRetriever struct {

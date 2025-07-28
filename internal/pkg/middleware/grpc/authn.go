@@ -12,8 +12,8 @@ import (
 	"miniblog/internal/pkg/errno"
 	"miniblog/internal/pkg/known"
 	"miniblog/internal/pkg/log"
-	"miniblog/pkg/token"
 
+	"github.com/onexstack/onexstack/pkg/token"
 	"google.golang.org/grpc"
 )
 

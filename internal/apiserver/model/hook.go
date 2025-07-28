@@ -6,8 +6,9 @@
 package model
 
 import (
+	"github.com/onexstack/onexstack/pkg/authn"
+
 	"miniblog/internal/pkg/rid"
-	"miniblog/pkg/auth"
 
 	"gorm.io/gorm"
 )
@@ -17,7 +18,7 @@ import (
 // 在创建数据库记录前加密明文密码.
 func (m *UserM) BeforeCreate(tx *gorm.DB) error {
 	var err error
-	m.Password, err = auth.Encrypt(m.Password)
+	m.Password, err = authn.Encrypt(m.Password)
 	if err != nil {
 		return err
 	}

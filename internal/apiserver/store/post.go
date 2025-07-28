@@ -7,13 +7,10 @@ package store
 
 import (
 	"context"
-	"errors"
 	"miniblog/internal/apiserver/model"
-	"miniblog/internal/pkg/errno"
-	"miniblog/internal/pkg/log"
 
+	genericstore "github.com/onexstack/onexstack/pkg/store"
 	"github.com/onexstack/onexstack/pkg/store/where"
-	"gorm.io/gorm"
 )
 
 type PostStore interface {
@@ -29,67 +26,75 @@ type PostStore interface {
 // 自定义帖子操作等附加方法.
 type PostExpansion interface{}
 
+// 使用标准Store类型
 // PostStore的接口实现.
 type postStore struct {
-	store *datastore
+	// store *datastore
+	*genericstore.Store[model.PostM]
 }
 
 var _ PostStore = (*postStore)(nil)
 
 func newPostStore(store *datastore) *postStore {
-	return &postStore{store: store}
-}
-
-func (s *postStore) Create(ctx context.Context, obj *model.PostM) error {
-	if err := s.store.DB(ctx).Create(&obj).Error; err != nil {
-		log.Errorw("Failed to insert post into database", "err", err, "post", obj)
-		return errno.ErrDBWrite.WithMessage(err.Error())
+	return &postStore{
+		Store: genericstore.NewStore[model.PostM](store, NewLogger()),
 	}
-	return nil
 }
 
-// Update 更新帖子数据库记录.
-func (s *postStore) Update(ctx context.Context, obj *model.PostM) error {
-	if err := s.store.DB(ctx).Save(obj).Error; err != nil {
-		log.Errorw("Failed to update post in database", "err", err, "post", obj)
-		return errno.ErrDBWrite.WithMessage(err.Error())
-	}
+// func newPostStore(store *datastore) *postStore {
+// 	return &postStore{store: store}
+// }
 
-	return nil
-}
+// func (s *postStore) Create(ctx context.Context, obj *model.PostM) error {
+// 	if err := s.store.DB(ctx).Create(&obj).Error; err != nil {
+// 		log.Errorw("Failed to insert post into database", "err", err, "post", obj)
+// 		return errno.ErrDBWrite.WithMessage(err.Error())
+// 	}
+// 	return nil
+// }
 
-// Delete 根据条件删除帖子记录.
-func (s *postStore) Delete(ctx context.Context, opts *where.Options) error {
-	err := s.store.DB(ctx, opts).Delete(new(model.PostM)).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Errorw("Failed to delete post from database", "err", err, "conditions", opts)
-		return errno.ErrDBWrite.WithMessage(err.Error())
-	}
+// // Update 更新帖子数据库记录.
+// func (s *postStore) Update(ctx context.Context, obj *model.PostM) error {
+// 	if err := s.store.DB(ctx).Save(obj).Error; err != nil {
+// 		log.Errorw("Failed to update post in database", "err", err, "post", obj)
+// 		return errno.ErrDBWrite.WithMessage(err.Error())
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-// Get 根据条件查询帖子记录.
-func (s *postStore) Get(ctx context.Context, opts *where.Options) (*model.PostM, error) {
-	var obj model.PostM
-	if err := s.store.DB(ctx, opts).First(&obj).Error; err != nil {
-		log.Errorw("Failed to retrieve post from database", "err", err, "conditions", opts)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errno.ErrPostNotFound
-		}
-		return nil, errno.ErrDBRead.WithMessage(err.Error())
-	}
+// // Delete 根据条件删除帖子记录.
+// func (s *postStore) Delete(ctx context.Context, opts *where.Options) error {
+// 	err := s.store.DB(ctx, opts).Delete(new(model.PostM)).Error
+// 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+// 		log.Errorw("Failed to delete post from database", "err", err, "conditions", opts)
+// 		return errno.ErrDBWrite.WithMessage(err.Error())
+// 	}
 
-	return &obj, nil
-}
+// 	return nil
+// }
 
-// List 返回帖子列表和总数.
-// nolint: nonamedreturns, 忽略命名返回值的警告
-func (s *postStore) List(ctx context.Context, opts *where.Options) (count int64, ret []*model.PostM, err error) {
-	err = s.store.DB(ctx, opts).Order("id desc").Find(&ret).Offset(-1).Limit(-1).Count(&count).Error
-	if err != nil {
-		log.Errorw("Failed to list posts from database", "err", err, "conditions", opts)
-		err = errno.ErrDBRead.WithMessage(err.Error())
-	}
-	return
-}
+// // Get 根据条件查询帖子记录.
+// func (s *postStore) Get(ctx context.Context, opts *where.Options) (*model.PostM, error) {
+// 	var obj model.PostM
+// 	if err := s.store.DB(ctx, opts).First(&obj).Error; err != nil {
+// 		log.Errorw("Failed to retrieve post from database", "err", err, "conditions", opts)
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return nil, errno.ErrPostNotFound
+// 		}
+// 		return nil, errno.ErrDBRead.WithMessage(err.Error())
+// 	}
+
+// 	return &obj, nil
+// }
+
+// // List 返回帖子列表和总数.
+// // nolint: nonamedreturns, 忽略命名返回值的警告
+// func (s *postStore) List(ctx context.Context, opts *where.Options) (count int64, ret []*model.PostM, err error) {
+// 	err = s.store.DB(ctx, opts).Order("id desc").Find(&ret).Offset(-1).Limit(-1).Count(&count).Error
+// 	if err != nil {
+// 		log.Errorw("Failed to list posts from database", "err", err, "conditions", opts)
+// 		err = errno.ErrDBRead.WithMessage(err.Error())
+// 	}
+// 	return
+// }

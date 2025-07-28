@@ -5,7 +5,10 @@
 
 package store
 
-import "miniblog/internal/pkg/log"
+import (
+	"context"
+	"miniblog/internal/pkg/log"
+)
 
 type Logger struct{}
 
@@ -14,6 +17,6 @@ func NewLogger() *Logger {
 }
 
 // 实现Error方法, 用于记录错误日志.
-func (l *Logger) Error(err error, msg string, kvs ...any) {
-	log.Errorw(msg, append(kvs, "err", err)...)
+func (l *Logger) Error(ctx context.Context, err error, msg string, kvs ...any) {
+	log.W(ctx).Errorw(msg, append(kvs, "err", err)...)
 }
