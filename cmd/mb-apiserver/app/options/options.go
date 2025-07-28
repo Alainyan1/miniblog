@@ -40,6 +40,9 @@ type ServerOptions struct {
 	// Expiration定义JWT token过期时间
 	Expiration time.Duration `json:"expiration" mapstructure:"expiration"`
 
+	// EnableMemoryStore 指示是否启用内存数据库(用于测试或开发环境).
+	EnableMemoryStore bool `json:"enable-memory-store" mapstructure:"enable-memory-store"`
+
 	// HTTPOptions包含http配置选项
 	HTTPOptions *genericoptions.HTTPOptions `json:"http" mapstructure:"http"`
 
@@ -56,13 +59,14 @@ type ServerOptions struct {
 // 创建带有默认值的ServerOptions实例.
 func NewServerOptions() *ServerOptions {
 	opts := &ServerOptions{
-		ServerMode:   apiserver.GRPCGatewayServerMode,
-		JWTKey:       "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
-		Expiration:   2 * time.Hour,
-		TLSOptions:   genericoptions.NewTLSOptions(),
-		HTTPOptions:  genericoptions.NewHTTPOptions(),
-		GRPCOptions:  genericoptions.NewGRPCOptions(),
-		MySQLOptions: genericoptions.NewMySQLOptions(),
+		ServerMode:        apiserver.GRPCGatewayServerMode,
+		JWTKey:            "Rtg8BPKNEf2mB4mgvKONGPZZQSaJWNLijxR42qRgq0iBb5",
+		Expiration:        2 * time.Hour,
+		EnableMemoryStore: true,
+		TLSOptions:        genericoptions.NewTLSOptions(),
+		HTTPOptions:       genericoptions.NewHTTPOptions(),
+		GRPCOptions:       genericoptions.NewGRPCOptions(),
+		MySQLOptions:      genericoptions.NewMySQLOptions(),
 	}
 	opts.HTTPOptions.Addr = ":5555"
 	opts.GRPCOptions.Addr = ":6666"
@@ -77,6 +81,7 @@ func (o *ServerOptions) AddFlags(fs *pflag.FlagSet) {
 	// 绑定 JWT Token 的过期时间选项到命令行标志。
 	// 参数名称为 `--expiration`, 默认值为 o.Expiration
 	fs.DurationVar(&o.Expiration, "expiration", o.Expiration, "The expiration duration of JWT tokens.")
+	fs.BoolVar(&o.EnableMemoryStore, "enable-memory-store", o.EnableMemoryStore, "Enable in-memory database (useful for testing or development).")
 	o.TLSOptions.AddFlags(fs)
 	o.HTTPOptions.AddFlags(fs)
 	o.GRPCOptions.AddFlags(fs)
@@ -114,12 +119,13 @@ func (o *ServerOptions) Validate() error {
 // Config方法基于ServerOptions创建新的apiserver.Config.
 func (o *ServerOptions) Config() (*apiserver.Config, error) {
 	return &apiserver.Config{
-		ServerMode:   o.ServerMode,
-		JWTKey:       o.JWTKey,
-		Expiration:   o.Expiration,
-		TLSOptions:   o.TLSOptions,
-		HTTPOptions:  o.HTTPOptions,
-		GRPCOptions:  o.GRPCOptions,
-		MySQLOptions: o.MySQLOptions,
+		ServerMode:        o.ServerMode,
+		JWTKey:            o.JWTKey,
+		Expiration:        o.Expiration,
+		EnableMemoryStore: o.EnableMemoryStore,
+		TLSOptions:        o.TLSOptions,
+		HTTPOptions:       o.HTTPOptions,
+		GRPCOptions:       o.GRPCOptions,
+		MySQLOptions:      o.MySQLOptions,
 	}, nil
 }

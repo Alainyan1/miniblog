@@ -33,6 +33,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250528174236-200df99c418a
 	google.golang.org/grpc v1.72.2
 	google.golang.org/protobuf v1.36.6
+	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.25.12
 	k8s.io/apimachinery v0.33.0

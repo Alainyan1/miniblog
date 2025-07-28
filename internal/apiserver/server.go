@@ -21,6 +21,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/onexstack/onexstack/pkg/ptr"
+	"gorm.io/driver/sqlite"
+
 	"github.com/onexstack/onexstack/pkg/authz"
 
 	mw "miniblog/internal/pkg/middleware/gin"
@@ -46,13 +49,14 @@ const (
 
 // 存储应用相关配置.
 type Config struct {
-	ServerMode   string
-	JWTKey       string
-	Expiration   time.Duration
-	HTTPOptions  *genericoptions.HTTPOptions
-	GRPCOptions  *genericoptions.GRPCOptions
-	MySQLOptions *genericoptions.MySQLOptions
-	TLSOptions   *genericoptions.TLSOptions
+	ServerMode        string
+	JWTKey            string
+	Expiration        time.Duration
+	EnableMemoryStore bool
+	HTTPOptions       *genericoptions.HTTPOptions
+	GRPCOptions       *genericoptions.GRPCOptions
+	MySQLOptions      *genericoptions.MySQLOptions
+	TLSOptions        *genericoptions.TLSOptions
 }
 
 // UnionServer 定义一个联合服务器. 根据 ServerMode 决定要启动的服务器类型.
@@ -93,8 +97,7 @@ func (cfg *Config) NewUnionServer() (*UnionServer, error) {
 	// 	return nil, err
 	// }
 
-	log.Infow("Initializing federation server", "server-mode", cfg.ServerMode)
-
+	log.Infow("Initializing federation server", "server-mode", cfg.ServerMode, "enable-memory-store", cfg.EnableMemoryStore)
 	// 根据服务模式创建对应的服务实例
 	// 实际企业开发中, 可以根据需要只选择一种服务器模式.
 	// 这里为了方便给你展示, 通过 cfg.ServerMode 同时支持了 Gin 和 GRPC 2 种服务器模式.
@@ -145,7 +148,66 @@ func (s *UnionServer) Run() error {
 
 // 创建一个gorm.DB实例.
 func (cfg *Config) NewDB() (*gorm.DB, error) {
-	return cfg.MySQLOptions.NewDB()
+	// return cfg.MySQLOptions.NewDB()
+	if !cfg.EnableMemoryStore {
+		log.Infow("Initializing database connection", "type", "mysql", "addr", cfg.MySQLOptions.Addr)
+		return cfg.MySQLOptions.NewDB()
+	}
+
+	log.Infow("Initializing database connection", "type", "memory", "engine", "SQLite")
+	// 使用SQLite内存模式配置数据库
+	// ?cache=shared 用于设置 SQLite 的缓存模式为 共享缓存模式 (shared)
+	// 默认情况下，SQLite 的每个数据库连接拥有自己的独立缓存，这种模式称为 专用缓存 (private)
+	// 使用 共享缓存模式 (shared) 后, 不同连接可以共享同一个内存中的数据库和缓存
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	if err != nil {
+		log.Errorw("Failed to create database connection", "err", err)
+		return nil, err
+	}
+
+	// 自动迁移数据库结构
+	if err := db.AutoMigrate(&model.UserM{}, &model.PostM{}, &model.CasbinRuleM{}); err != nil {
+		log.Errorw("Failed to migrate database schema", "err", err)
+		return nil, err
+	}
+
+	// 注意: 这里仅仅为了实现快速部署, 降低学习难度
+	// 在真实企业开发中, 不能再代码中硬编码这些初始化配置
+	// 尤其是硬编码密码, 密钥之类的信息.
+	// 插入 casbin_rule 表记录
+	adminR, userR := "role::admin", "role::user"
+	casbinRules := []model.CasbinRuleM{
+		{PType: ptr.To("g"), V0: ptr.To("user-000000"), V1: &adminR},
+		{PType: ptr.To("p"), V0: &adminR, V1: ptr.To("*"), V2: ptr.To("*"), V3: ptr.To("allow")},
+		{PType: ptr.To("p"), V0: &userR, V1: ptr.To("/v1.MiniBlog/DeleteUser"), V2: ptr.To("CALL"), V3: ptr.To("deny")},
+		{PType: ptr.To("p"), V0: &userR, V1: ptr.To("/v1.MiniBlog/ListUser"), V2: ptr.To("CALL"), V3: ptr.To("deny")},
+		{PType: ptr.To("p"), V0: &userR, V1: ptr.To("/v1/users"), V2: ptr.To("GET"), V3: ptr.To("deny")},
+		{PType: ptr.To("p"), V0: &userR, V1: ptr.To("/v1/users/*"), V2: ptr.To("DELETE"), V3: ptr.To("deny")},
+	}
+
+	if err := db.Create(&casbinRules).Error; err != nil {
+		log.Fatalw("Failed to insert casbin_rule records", "err", err)
+		return nil, err
+	}
+
+	// 插入默认用户(root用户)
+	user := model.UserM{
+		UserID:    "user-000000",
+		Username:  "root",
+		Password:  "miniblog1234",
+		Nickname:  "administrator",
+		Email:     "colin404@foxmail.com",
+		Phone:     "18110000000",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := db.Create(&user).Error; err != nil {
+		log.Fatalw("Failed to insert default root user", "err", err)
+		return nil, err
+	}
+
+	return db, nil
 }
 
 // 后续可以使用依赖注入的方式.
